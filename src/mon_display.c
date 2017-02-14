@@ -963,7 +963,10 @@ static void _display_drops(monster_race *r_ptr, doc_ptr doc)
 }
 static void _display_kills(monster_race *r_ptr, doc_ptr doc)
 {
-    if (r_ptr->flags1 & RF1_UNIQUE)
+    if (spoiler_hack)
+    {
+    }
+    else if (r_ptr->flags1 & RF1_UNIQUE)
     {
         doc_insert(doc, "Status  : ");
         if (r_ptr->max_num == 0)
@@ -979,13 +982,16 @@ static void _display_kills(monster_race *r_ptr, doc_ptr doc)
         doc_printf(doc, "Kills   : <color:G>%d</color>\n", r_ptr->r_pkills);
     }
 
+    int plev = p_ptr->max_plv;
+    if (spoiler_hack)
+        plev = 50;
     if (_easy_lore(r_ptr) || r_ptr->r_tkills)
     {
-        int xp = r_ptr->mexp * r_ptr->level / (p_ptr->max_plv + 2);
+        int xp = r_ptr->mexp * r_ptr->level / (plev + 2);
         char buf[10];
 
         big_num_display(xp, buf);
-        doc_printf(doc, "Exp     : <color:G>%s</color> at CL%d\n", buf, p_ptr->max_plv);
+        doc_printf(doc, "Exp     : <color:G>%s</color> at CL%d\n", buf, plev);
     }
 
     _display_drops(r_ptr, doc);
