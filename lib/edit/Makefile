@@ -38,6 +38,7 @@ CONFIG = a_info.txt \
 	q_vapor.txt \
 	q_vault.txt \
 	q_wargs.txt \
+	q_warg_lite.txt \
 	r_info.txt \
 	s_info.txt \
 	t_angwil.txt \
