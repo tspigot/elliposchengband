@@ -264,7 +264,7 @@ void obj_flags_known(object_type *o_ptr, u32b flgs[OF_ARRAY_SIZE])
         artifact_type *a_ptr = &a_info[o_ptr->name1];
 
         for (i = 0; i < OF_ARRAY_SIZE; i++)
-            flgs[i] |= (a_ptr->flags[i] & a_ptr->known_flags[i]);
+            flgs[i] = (a_ptr->flags[i] & (a_ptr->known_flags[i] | flgs[i]));
     }
     else if (object_is_ego(o_ptr))
     {
