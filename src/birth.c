@@ -417,28 +417,35 @@ void determine_random_questor(quest_type *q_ptr)
 
     while (attempt < 10000)
     {
-        int accept_lev = q_ptr->level + (q_ptr->level / 20);
-        int mon_lev = q_ptr->level + 5 + randint1(q_ptr->level / 10);
-
-        /* Hacks for high level quests */
-        if (accept_lev > 88)
-            accept_lev = 88;
-
-        if (mon_lev > 88)
-            mon_lev = 88;
+        int min_lev = q_ptr->level + 1;
+        int max_lev = q_ptr->level + 9;
+        if (q_ptr->level < 10)
+            max_lev -= 2;
+        else if (q_ptr->level < 20)
+            max_lev -= 1;
+        else if (q_ptr->level > 80)
+            max_lev += 2;
+        else if (q_ptr->level > 70)
+            max_lev += 1;
+        int mon_lev = (min_lev + max_lev + 1) / 2;
+        mon_lev += randint0(max_lev - mon_lev + 1);
 
         attempt++;
 
-        /*
-         * Random monster 5 - 10 levels out of depth
-         * (depending on level)
-         */
         unique_count = 0; /* Hack! */
         r_idx = get_mon_num(mon_lev);
         r_ptr = &r_info[r_idx];
 
-        if (r_idx == MON_ROBIN_HOOD) continue;
-        if (r_idx == MON_JACK_SHADOWS) continue;
+        // Don't allow these uniques (mainly for being too nasty for the depth
+        // at which they would be placed.
+        if (r_idx == MON_ROBIN_HOOD) continue;         //6
+        if (r_idx == MON_GACHAPIN) continue;           //21
+        if (r_ptr->flags2 & RF2_CAMELOT) continue;     //21 or 30
+        if (r_idx == MON_SHEER_HEART_ATTACK) continue; //30
+        if (r_idx == MON_KAVLAX) continue;             //30
+        if (r_idx == MON_JACK_SHADOWS) continue;       //39
+        if (r_idx == MON_YIBB_TSTLL) continue;         //39
+        if (r_idx == MON_THE_METAL_BABBLE) continue;   //76
 
         /* Try to enforce preferences, but its virtually impossible to prevent
            high level quests for uniques */
@@ -460,12 +467,13 @@ void determine_random_questor(quest_type *q_ptr)
 
         if (no_questor_or_bounty_uniques(r_idx)) continue;
 
-        if (r_ptr->level > q_ptr->level + 12) continue;
+        if (r_ptr->level > max_lev) continue;
 
-        if (r_ptr->level > accept_lev || attempt > 5000) break;
+        if (r_ptr->level >= min_lev || attempt > 5000) break;
     }
 
     q_ptr->r_idx = r_idx;
+    //msg_format("%d->%d: %s\n", q_ptr->level, r_info[r_idx].level, r_name + r_info[r_idx].name);
 }
 
 
