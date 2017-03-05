@@ -419,6 +419,7 @@ void determine_random_questor(quest_type *q_ptr)
     {
         int min_lev = q_ptr->level + 1;
         int max_lev = q_ptr->level + 9;
+        int mon_lev;
         if (q_ptr->level < 10)
             max_lev -= 2;
         else if (q_ptr->level < 20)
@@ -427,7 +428,7 @@ void determine_random_questor(quest_type *q_ptr)
             max_lev += 2;
         else if (q_ptr->level > 70)
             max_lev += 1;
-        int mon_lev = (min_lev + max_lev + 1) / 2;
+        mon_lev = (min_lev + max_lev + 1) / 2;
         mon_lev += randint0(max_lev - mon_lev + 1);
 
         attempt++;

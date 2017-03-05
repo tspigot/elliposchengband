@@ -963,6 +963,9 @@ static void _display_drops(monster_race *r_ptr, doc_ptr doc)
 }
 static void _display_kills(monster_race *r_ptr, doc_ptr doc)
 {
+    int plev = p_ptr->max_plv;
+    if (spoiler_hack)
+        plev = 50;
     if (spoiler_hack)
     {
     }
@@ -982,9 +985,6 @@ static void _display_kills(monster_race *r_ptr, doc_ptr doc)
         doc_printf(doc, "Kills   : <color:G>%d</color>\n", r_ptr->r_pkills);
     }
 
-    int plev = p_ptr->max_plv;
-    if (spoiler_hack)
-        plev = 50;
     if (_easy_lore(r_ptr) || r_ptr->r_tkills)
     {
         int xp = r_ptr->mexp * r_ptr->level / (plev + 2);
