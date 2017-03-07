@@ -19,6 +19,12 @@ F:y:TREE:0
 # Default for Quest 23 = entrance is tree
 F:x:TREE:0
 
+# Default for Quest 36 = entrance is tree
+F:s:TREE:0
+
+# Default for Quest 35 = entrance is tree
+F:v:TREE:0
+
 
 ############### Quest 22 - Orc Camp ###################
 
@@ -68,19 +74,19 @@ F:b:BUILDING_1:3:0:0:0:0:NONE:19
 ?:[EQU $QUEST19 2]
 F:b:BUILDING_1:3:0:0:0:0:NONE:19
 
-# Quest 19 rewarding, reward is an Elemental Ring, continue with quest 23
+# Quest 19 rewarding, reward is an Elemental Ring, continue with quest 36
 ?:[EQU $QUEST19 3]
-F:b:BUILDING_1:3:0:0:0:0:NONE:23
+F:b:BUILDING_1:3:0:0:0:0:NONE:36
 F:!:FLOOR:3:0:132:201
 
 # Elemental Charm
 ?:[AND [EQU $QUEST19 3] [EQU $RACE Hydra] ]
-F:b:BUILDING_1:3:0:0:0:0:NONE:23
+F:b:BUILDING_1:3:0:0:0:0:NONE:36
 F:!:FLOOR:3:0:163:201
 
-# Quest 19 finished, continue with quest 23
+# Quest 19 finished, continue with quest 36
 ?:[EQU $QUEST19 4]
-F:b:BUILDING_1:3:0:0:0:0:NONE:23
+F:b:BUILDING_1:3:0:0:0:0:NONE:36
 
 # Quest 19 failed
 ?:[EQU $QUEST19 5]
@@ -88,6 +94,66 @@ F:b:BUILDING_1:3:0:0:0:0:NONE:19
 
 # Quest 19 failed
 ?:[EQU $QUEST19 6]
+F:b:BUILDING_1:3
+
+?:1
+
+############### Quest 36 - The Sand Pit ###############
+
+# Quest 36 assigned, entrance is quest entrance
+?:[EQU $QUEST36 1]
+F:s:QUEST_ENTER:3:0:0:0:0:NONE:36
+F:b:BUILDING_1:3:0:0:0:0:NONE:36
+
+# Quest 36 completed
+?:[EQU $QUEST36 2]
+F:b:BUILDING_1:3:0:0:0:0:NONE:36
+
+# Quest 36 rewarding, reward is the Stone of Lore, continue with quest 35
+?:[EQU $QUEST36 3]
+F:b:BUILDING_1:3:0:0:0:0:NONE:35
+F:!:FLOOR:3:0:0:0:17
+
+# Quest 36 finished, continue with quest 35
+?:[EQU $QUEST36 4]
+F:b:BUILDING_1:3:0:0:0:0:NONE:35
+
+# Quest 36 failed
+?:[EQU $QUEST19 5]
+F:b:BUILDING_1:3:0:0:0:0:NONE:36
+
+# Quest 36 failed
+?:[EQU $QUEST19 6]
+F:b:BUILDING_1:3
+
+?:1
+
+############### Quest 35 - Dragon Quest ###############
+
+# Quest 35 assigned, entrance is quest entrance
+?:[EQU $QUEST35 1]
+F:v:QUEST_ENTER:3:0:0:0:0:NONE:35
+F:b:BUILDING_1:3:0:0:0:0:NONE:35
+
+# Quest 35 completed
+?:[EQU $QUEST35 2]
+F:b:BUILDING_1:3:0:0:0:0:NONE:35
+
+# Quest 35 rewarding, reward is a staff of holiness, continue with quest 23
+?:[EQU $QUEST35 3]
+F:b:BUILDING_1:3:0:0:0:0:NONE:23
+F:!:FLOOR:3:0:270:565
+
+# Quest 35 finished, continue with quest 23
+?:[EQU $QUEST35 4]
+F:b:BUILDING_1:3:0:0:0:0:NONE:23
+
+# Quest 35 failed
+?:[EQU $QUEST35 5]
+F:b:BUILDING_1:3:0:0:0:0:NONE:19
+
+# Quest 35 failed
+?:[EQU $QUEST35 6]
 F:b:BUILDING_1:3
 
 ?:1
@@ -275,7 +341,7 @@ D:TTTTTT-TTT,-TTT-T-TTTTTTTT-T,TTT-T--TT-TTTTTT-TTT---TTT-T-TTT,TTTT--TTT---TTTT
 D:TTTTT-TTTTTTTTTTTTTTTTTT-TTTT-T-TT-T-TTTTTT-TT-T-TTT-TTTT--TTTTTT-TTT-T--TTT-TTTTT-TTT-TTT#####TT-,TTT-TT-TTTTTTT--T-TTT-TTTTTTTTT---TTTTT-TT-TT-TT----T-,-------TT-TT-T---TTTTT-TT-T-TTTTTTTTTT-TTTTT
 D:TTTTT-TT-TT-TTTT---TT-TTTTTTTTTT,-TTT-TTTTTT-TT-TT-TTTTT--TTTTT-T-TTTTT-TT,TTTT-TT-TTT-T,-#####TTTT-TTT-T####TT--,TT-T-TT-TT-TT---TT-T-TTTTT-TTT-,,TTT-TTTTTT-TTTTT-TTT-TTTT-,TTTT-TTTTT--TTT,,TTT-,TT
 D:TTTT-TTTTTTTTTT--TT-T,TTT,T-TT-T-TTTT-TTT,TTTTTTT-TTT-TTTT-TTTTT---TTTT-TT-T--TTT-T-TTTT-T#####TT-TTTTTT-####T-TTT-T-TTTT-TT,T-TTTT-T,TT-T-T-T-T-TTT-T-T---TTT-TTTTT-T-T-T-TTTTT-TTTT-TTTTTT,T-TTT-TTT
-D:T--TTTT-TTTTTTTTTTTTTTT-TTTT--TTTTT-TTTT-TTTT-TTTTT--TTT,,TTTT-T-TT----TTT-TTT,-TTT----TTT-TTTT---TT-T-T-k###T-TTTTTT-TTTTTT-T,T-TTTT-T-TT-TTT-TTTT-TTT--TTT-TTTT--TTTTTT,TTTTT-T--,TTTT-T-T--,TTTTTTT
+D:T--TTTT-TTTTTTTTTTTTTTT-TTTT--TTTTT-TTTT-TTTT-TTTTT--TTT,,TTTT-T-TT----sTT-TTT,-TTT----TTT-TTTT---TT-T-T-k###T-TTTTTT-TTTTTT-T,T-TTTTvT-TT-TTT-TTTT-TTT--TTT-TTTT--TTTTTT,TTTTT-T--,TTTT-T-T--,TTTTTTT
 D:TTTTTTTTTT--T--TTTTT-TTTT-T-TT-TTTTTT-TTT-TT-TTTTTTTTT,TTTT-TTTTTTTTTTT--TTTTTTTT-T-TTT-T,TT-,T-TTTTT-TT-####-T--TTT--TTT---TT,TTTTTT-TTT--TT-TTTTTT-TTTTT,,TTT---T-TT-TTTTT-TTT--TT--TT,TTT,TTT---TTT
 D:TT-T--T-TTTT-T-TTT--TTT-T-TTT---T-T,TTTTTTTTTTT-TTTTT-TTT-TTT-TTTTT-T-T,TTTTTT-TTTT-TTT,TTTTTTTT--TT--T-T####TTT-TTTTT,TTTT-T-TT-T-TTTTT--T-,T-TTT-TT-T-,T-T---TTTT-T-TT-T-TTT-TTTTT--TTT-TTTT--TTTTTT
 D:TTTTTT,TTT---TT---TTT---TTT-TTTT---T-T-TTTTTTTTTTT--T--TTTTT-TTT--T-TTT---TTT-TTT-T-TTT-T-TTT-TTTTT-TTTT-T,-TT--TTT---TT-T-TTT---TT-TTTT-T-T-TT---TT--,TTT--TTTT-TTT-TTTTTTT--TTT-TTTTT--T-T---T-TT-TT
@@ -295,6 +361,14 @@ P:19:66
 # Starting position when coming from quest 22
 ?:[EQU $LEAVING_QUEST 22]
 P:63:98
+
+# Starting position when coming from quest 36
+?:[EQU $LEAVING_QUEST 36]
+P:59:72
+
+# Starting position when coming from quest 35
+?:[EQU $LEAVING_QUEST 35]
+P:59:134
 
 # Starting position when coming from quest 23
 ?:[EQU $LEAVING_QUEST 23]
