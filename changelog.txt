@@ -1,3 +1,55 @@
+======================
+pseudoelliposchengband
+======================
+Changelog versus elliposchengband:
+
+Significant gameplay changes:
+-----------------------------
+- Rune Knights reverted back to the vanilla class instead of ellipcb's nerf/rework.
+
+Minor gameplay changes:
+-----------------------
+- Having easy_id on lets nonmagical classes like warrior pseudo-ID lights and jewelry in the same way that mages do. 
+- Items that give "auto pseudo-ID" also now improve pseudo-id by letting warrior-types sense jewelry and lights, and letting mage-types differentiate between good/excellent/special. 
+- Messages differentiate between "this is impossible to succeed at" versus "you failed this time but still have a chance of success" for things like Cavalry's Rodeo or Blue-Mage's spell learning.
+- All Nazgul count as valid "ringbearers" for Ring mimics.
+- Weaponsmiths can add or remove essences on worn items without having to unequip them first.
+- The wand of clone monster is back, for those who enjoyed scumming with it. 
+- Trying to zap an empty wand/rod/staff no longer costs a turn. 
+- The Psion's speed buff is no longer overridden by the smaller buff from a potion of speed.
+- Hephaestus-parentage demigods will never have their equipment disenchanted. (Their race description claimed they were immune, and they already had one point of disenchant resistance, but this didn't provide complete protection.)
+- Bard and high-mage of hex no longer lose a turn when a monster's dispel-magic cancels an active song or chant. 
+- Rings' spellcasting interface has been changed around so that spells always use the same letter instead of moving around each time they learn a new power. 
+- Several spells which could only possibly be gained from lucky randart jewelry have been removed from rings' spell list. 
+- For the purposes of autodestroyer settings, feanorian lamps, seeker ammo, and mithril shots now count as 'rare' rather than 'common'. 
+
+Interface changes:
+------------------
+- Add a "simple stat display" option to show stats as numbers out of 40 instead of 18/220. 
+- Add a "display race" option to choose between the player always being @ or changing character based on their monster race. 
+- Draconians who choose Metamorphosis chance their character from @ to D. 
+- When the player gets to choose a stat to increase, their stat maximums are displayed if known. 
+- The Bard's Clairaudience song no longer spams the player with messages.
+- Wands of heal monster and haste monster can target pets even if the player has the "allow targeting pets" option turned off. 
+- Below their speed on the character sheet, the player can see their actual multiplier to energy. +10 speed is twice as fast as +0, but +30 isn't exactly 4x as fast. 
+- The player's speed is highlighted in orange when they are simultaneously hasted and slowed, instead of appearing that they have neither effect.
+- The messages for the Duelist's special strikes have a bit more color to them. 
+
+
+Bug fixes:
+----------
+- Getting auto_id at level 25 properly checks the easy_id option instead of easy_lore.
+- Canceling the targetting prompt or killing your target monster now properly resets your target to nothing instead of buggily choosing a random tile. 
+- Dungeon entrance guardians that normally resist teleportation properly become immune. (Non-naturally-resistant guardians already became immune.) 
+- Spell failure messages now work properly for classes with access to more than two realms, i.e. Sorcerer and Red-Mage.
+- Messages when your gear is disenchanted or corroded now use the correct slot letter. 
+- Using *Recharging* with 0sp, or on a class that doesn't have sp, will now print a failure message instead of lying to you that it actually recharged something. 
+- Monster-race Rings don't get messages for gaining a new power if it isn't actually on their list of castable spells. 
+- Artifacts that are missing a property which shows up on their base type (Gil-Galad) no longer lie to the player about having it. 
+
+================
+elliposchengband
+================
 Changelog (from "vanilla" poschengband, as of Feb 10, 2017, with commit hashes
            in parentheses)
 
