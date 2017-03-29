@@ -40,55 +40,40 @@ F:d:SHALLOW_WATER:8:918
 # Floor with Wererat
 F:e:FLOOR:8:270
 
-# Floor with Blue icky thing
-F:f:FLOOR:8:252
-
 # Floor with Giant spider
 F:g:FLOOR:8:175
 
-# Floor with Gremlin
-F:h:FLOOR:8:153
-
 # Floor with Metallic green centipede
 F:i:FLOOR:8:42
-
-# Floor with Nether worm mass
-F:j:FLOOR:8:213
-
-# Deep water with Deep puddle
-F:k:DEEP_WATER:8:944
-
-# Shallow water with Shallow puddle
-F:l:SHALLOW_WATER:8:885
 
 # Deep water with White crocodile
 F:m:DEEP_WATER:8:1044
 
 # Dungeon
-D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-D:Xa..<.............%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%X
-D:XVlVVVlVVVVVVVVVV.........%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%X
-D:Xa.....a........VVVVVVVVV.....................%%%%%%%%%%%%%%%%%%%%%%X
-D:X%%%%%%%%%%%%%%.........VVVVVVVVVVVVVVVVVVVVV...........WWWWW%%%%%%%X
-D:X%%%%%%%%%%%%%%%%%%%%%%..V.%................VVVVVVVV...WWWWWWW%%%%%%X
-D:X%%%%%%%%%%%%%%%%%%%%%%%.V.%%%%%%%%%%%%%%%%........VVVVWWWWWWW%%%%%%X
-D:X%%%%%%%%%%%%%%%%%%%%%%%.V..........b%%%%%%%%%%%%%h....WWWWWWW%%%%%%X
-D:X%%%%%%%%%%%%%%%%%%%%%%%.VVVVVVVVVVV.%%%%%%%%%%%%%%%%%%kWWWW%%%%%%%%X
-D:X%%%%%%%%%%%%%%%%%%%%%%%.......WWWWV.%%%%%%WWWWW%%%%%%%%%%%%%%%%W%%%X
-D:X%%%%%dVd%%%%%%%%%%%%%i........WWWWV.%%%%%%WWWWW%%%%%%%%%%%%..WWW.%%X
-D:X%%%%%.V.%%%%%%%%%%%%%.VVVVVVVVVVVVV.%%%%%%%WWWW%%%%%%%%%%%%j..WW.%%X
-D:X%%%%%.V.%%%%%%%%%%%%..V.............%%%%%%%.WWf%%%%%%%%%%%.....k.%%X
-D:X%%%%%%V%%%%%%%%%%%%%.VV.%%%%%%%%%%%%%%%%%%%%...%%%%%%%%%%%%.%%.%%%%X
-D:X%%%%%%V%%%%%%%%%%%...V..%%%%%%%%%%%%%%%%%%%%%.%%%%%%%%%%%%%%%%.%%%%X
-D:X%%%%%%V%%%%%%%%%%%.VVV.%%%%%%%%%%%%%%%%%%%%%%.%%%%%%%%%%%%%%%%.%%%%X
-D:X%%%%%%lVVVVVVcVVVVVV....e..........%%%%%%%%%%.%%%%%%%%%%%%%%%%.%%%%X
-D:X%%%%%%%%%%%%%%%%%%.VVVVVVVVVVVVVVV..................%%%%%%%%%%.%%%%X
-D:X%%%%%%%%%%%%%%%%%%..V............VVVVVVVVVVVVlVVVVV.%%%%%%%%%%.%%%%X
-D:X%%%%%%%%%%mW%%%%%%%%V%%%%%%%%%%%..................V............%%%%X
-D:X%%%%%%%%%%WW%%%%%%%%V%%%%%%%%%%%%%%%%%%%%%%%%%%%%.VVVVVVVVVVVl.....X
-D:X%%%%%%%%%%VVVVVVVVVVV%%%%%%%%%%%%%%%%%%%%%%%%%%%%gggggg......VVVVV.X
-D:X%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%.......X
-D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:Xa..<.............%%%%%%%%%%%%%%%%%%%%%X
+D:XVVVVVVVVVVVVVVVV.........%%%%%%WWWWW%%X
+D:Xa.....a........VVVVVVVVV.......WWWWWW%X
+D:X%%%%%%%%%%%%%%.........VVVVVVVVWWWWWW%X
+D:X%%%%%%%%%%%%%%%%%%%%%%..V.%....WWWWW%%X
+D:X%%%%%%%%%%%%%%%%%%%%%%%.V.%%%%%%%%%%%%X
+D:X%%%%%%%%%%%%%%%%%%%%%%%.V..........b%%X
+D:X%%%%%%%%%%%%%%%%%%%%%%%.VVVVVVVVVVV.%%X
+D:X%%%%%%%%%%%%%%%%%%%%%%%.......WWWWV.%%X
+D:X%%%%%dVd%%%%%%%%%%%%%i........WWWWV.%%X
+D:X%%%%%.V.%%%%%%%%%%%%%.VVVVVVVVVVVVV.%%X
+D:X%%%%%.V.%%%%%%%%%%%%..V......e......%%X
+D:X%%%%%%V%%%%%%%%%%%%%.VV.%%%%%%%%%%%%%%X
+D:X%%%%%%V%%%%%%%%%%%...V..%%%%%%%%%%%%%%X
+D:X%%%%%%V%%%%%%%%%%%.VVV.%%%%%%%%%%%%%%%X
+D:X%%%%%%VVVVVVVcVVVVVV....e..........%%%X
+D:X%%%%%%%%%%%%%%%%%%.VVVVVVVVVVVVVVV.gg%X
+D:X%%%%%%%%%%%%%%%%%%..V............VVgg%X
+D:X%%%%%%%%%%mW%%%%%%%%V%%%%%%%%%%%...g%%X
+D:X%%%%%%%%%%WW%%%%%%%%V%%%%%%%%%%%%%%%%%X
+D:X%%%%%%%%%%VVVVVVVVVVV%%%%%%%%%%%%%%%%%X
+D:X%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%X
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 
 # Starting position
 P:1:4

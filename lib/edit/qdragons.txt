@@ -1,0 +1,115 @@
+# qdragons.txt
+Q:35:N:Dragon Quest
+
+# Definition
+Q:35:Q:6:0:0:0:42:0:0:0:6
+
+# Description for quest
+?:[LEQ $QUEST35 2]
+Q:35:T:There's a small dungeon in which dragons have created a home.
+Q:35:T:They aren't a threat to us, but what do you say to doing some
+Q:35:T:looting? Here's the deal, you go in, kill everything in there,
+Q:35:T:take what you like and I'll send my men in for the rest.
+Q:35:T:Sound good?
+?:1
+
+# Description for quest reward
+?:[EQU $QUEST35 3]
+Q:35:T:Here's a little something extra for you.
+?:1
+
+# Description for quest failed
+?:[EQU $QUEST35 5]
+Q:35:T:Disgraceful.
+?:1
+
+# Door
+F:+:CLOSED_DOOR:8
+
+# Granite wall
+F:#:GRANITE:8
+
+# Floor with a baby blue dragon
+F:a:FLOOR:8:163
+# Floor with a mature blue dragon
+F:b:FLOOR:8:560
+# Floor with an ancient blue dragon
+F:B:FLOOR:8:601
+
+# Floor with a baby white dragon
+F:c:FLOOR:8:164
+# Floor with a mature white dragon
+F:w:FLOOR:8:549
+# Floor with an ancient white dragon
+F:W:FLOOR:8:617
+
+# Floor with a baby green dragon
+F:i:FLOOR:8:165
+# Floor with a mature green dragon
+F:g:FLOOR:8:561
+# Floor with an ancient green dragon
+F:G:FLOOR:8:618
+
+# Floor with a baby black dragon
+F:e:FLOOR:8:166
+# Floor with a mature black dragon
+F:d:FLOOR:8:592
+# Floor with an ancient black dragon
+F:D:FLOOR:8:624
+
+# Floor with a baby red dragon
+F:f:FLOOR:8:167
+# Floor with a mature red dragon
+F:r:FLOOR:8:589
+# Floor with an ancient red dragon
+F:R:FLOOR:8:644
+
+# Floor with a baby multi-hued dragon
+F:m:FLOOR:8:204
+# Floor with a mature multi-hued dragon
+F:M:FLOOR:8:593
+
+# Floor with a mature bronze dragon
+F:h:FLOOR:8:562
+# Floor with an ancient bronze dragon
+F:H:FLOOR:8:602
+
+# Floor with a mature gold dragon
+F:j:FLOOR:8:590
+# Floor with an ancient gold dragon
+F:J:FLOOR:8:645
+
+# Dungeon layout
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:X##################################################X
+D:X##################################################X
+D:X##################################################X
+D:X#######################.....................######X
+D:X#######################.##########.########.######X
+D:X########................##########.#.M..mm#.######X
+D:X########+##############+##########.+..mmMm#....###X
+D:X######.....##########.....bB######.#..mMmm####.###X
+D:X######..e..##########...a.ab######.###########.###X
+D:X######d...e.dD#######..b...a######.##Rr..f...+.###X
+D:X######Dd..d..d#######b......######.##r.......#.###X
+D:X#########...e.#######Bb.....######+##...rf...#.###X
+D:X#########.....###########+########.....f....r#.###X
+D:X###########+#############.########.........rR#.###X
+D:X###########.#############.########.......#####.###X
+D:X###########.#############+########......f#####+###X
+D:X###...j####.###########...########+#######h....###X
+D:X###....####.###########.<.+..........#####...h.###X
+D:X###J...+..............+...##########.#####.H...###X
+D:X###j...####+###########+######...m.#.#####....h###X
+D:X##########.....gG###Ww....####.MM..#.#######+#####X
+D:X##########..i...g###w....c####.mM..+.........#####X
+D:X##########...gi..##...cw..####m....#.##+##########X
+D:X##########g....i.##w.....###########.#...Mm#######X
+D:X##########Gg.....##Ww..c.+...........#...mM#######X
+D:X##############+###########.###########..mMM#######X
+D:X##############.............#######################X
+D:X##################################################X
+D:X##################################################X
+D:X##################################################X
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+P:18:25

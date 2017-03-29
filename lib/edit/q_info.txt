@@ -135,6 +135,18 @@
 ?:[EQU $QUEST_NUMBER 33]
 %:q0clone0.txt
 
+# The Mountain Shrine
+?:[EQU $QUEST_NUMBER 34]
+%:qshrine.txt
+
+# Dragon Quest
+?:[EQU $QUEST_NUMBER 35]
+%:qdragons.txt
+
+# Sand Pit
+?:[EQU $QUEST_NUMBER 36]
+%:qworms.txt
+
 # Random quests (always adressed with number 40)
 ?:[EQU $QUEST_NUMBER 40]
 %:q_random.txt

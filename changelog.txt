@@ -79,9 +79,15 @@ specific races/classes:
 - Remove erratic movement for players. (c3d6de5)
 - Make Duelists automatically duel when attacking a monster. (32c911e)
 
+quests:
+- New quests by clouded. (3e93f6b, 8efe725)
+- Tweak dungeon quest depths. (eb5275b)
+
 other:
 - Only trigger eldritch horror/fear effects for monsters in LOS (a150551)
 - Change Warning to apply only to traps. (334a291)
+- Allow small_levels to work on all dungeons. (0b7aecd)
+- Allow teleporting/recalling to all locations from birth. (e959e35)
 
 Interface changes:
 ------------------
@@ -119,6 +125,7 @@ other:
 - Change landmines/lurkers etc to the 'x' glyph (4939c3c)
 - Remove maprot from the Labyrinth (dc9fc7b)
 - Let Ninjas regain stealth by spending a turn stationary. (498aba1)
+- Improve monster spoilers. (9534461)
 
 Bug fixes:
 ----------
@@ -127,5 +134,6 @@ Bug fixes:
 - Fix targetting weirdnesses. (c2a63f4, 37791f0)
 - Sync some quest rewards in t_lite.txt. (2f22904)
 - Fix aether vortex damage display. (7addefc)
+- Fix autodestroying gamble shop items not giving essences. (fdcc604)
 - Fix some int -> bool casts. (cd5b2cc)
 - Fix shoggoth speech. (45b7da5)

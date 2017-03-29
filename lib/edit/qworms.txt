@@ -1,0 +1,72 @@
+# qworms.txt
+Q:36:N:The Sand Pit
+
+# Definition
+Q:36:Q:6:0:0:0:38:0:0:0:6
+
+# Description for quest
+?:[LEQ $QUEST36 2]
+Q:36:T:We desperately need help in clearing out a foul nest of worms.
+Q:36:T:These eldritch abominations are sleeping in a nearby pit, waiting
+Q:36:T:upon the stars. Please, you must help us before it is too late.
+?:1
+
+# Description for quest reward
+?:[EQU $QUEST36 3]
+Q:36:T:Thank you.
+?:1
+
+# Description for quest failed
+?:[EQU $QUEST36 5]
+Q:36:T:Oh. no.
+?:1
+
+# Granite wall
+F:#:GRANITE:8
+
+# Dirt floor
+F:.:DIRT:8
+
+# Rubble
+F:;:RUBBLE:8:
+
+# Cthonian:
+F:C:DIRT:8:619
+
+# Dhole:
+F:D:DIRT:8:455
+
+# Trench wurm:
+F:w:DIRT:8:1070
+
+# Wereworm:
+F:W:DIRT:8:404
+
+# Dungeon layout
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:X;;;;;;;;#;;;;;;;;;;;;;;;;;;;;;;;;X
+D:X;;;;;;;;;;;;;#;;;;;;;;#;;;;;;;;;;X
+D:X;;;#;;;...;;;;;;;;;;;;;;;.;;#;;;;X
+D:X;;;;;;C;;.w.;;;;#;;;;;;..w.D;;;;;X
+D:X;;;;;;;......;;;;;;;#;;;...;;;;;;X
+D:X;#;;;;.....;;;;;;;;;;;;;;...#;#;;X
+D:X;;;;#;;;...;;;#;;;#;;;#...;;;;;;;X
+D:X;;;;;;;;;;;;;;;;;;;;;;;;;.;;;;;;;X
+D:X;;;;#;;;;;;;#;;;...;;;;;;;;;#;;;;X
+D:X;#;;;;;;#;;;;;.....;;;#;;;;;;;;;;X
+D:X;;;;;;.;;;;;;;;.<;..;;;;;;;;;;;#;X
+D:X;;;;;..;;;;#;;....;.;;;#;;;.#;;;;X
+D:X;;#;..;#;;;;;;;....;;;;;;;...;;;;X
+D:X;;;;;...;;;;;;;;;;;#;;;;;;;.w;;;;X
+D:X;;;..w.;;;...;;;;;;;;;#;;;;;..#;;X
+D:X;;;;....;#;...;#;;;;.;;;;;..;;;;;X
+D:X;;;#;D.;;;;..;;;;;#;..;;#;;;;;;;;X
+D:X;;;;;.;;;;;;;;;;....w...;;;#;;;#;X
+D:X;;;;..;#;;;;#;;;;.W..;;...;#;;;;;X
+D:X;;#;;;;;;;;;;;;;...;#;;;..C;;;;;;X
+D:X;;;;;;;;;;#;;;#;;;;;;;;;#;;;;#;;;X
+D:X;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;X
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+# Starting position
+P:11:17

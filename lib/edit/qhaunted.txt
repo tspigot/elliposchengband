@@ -4,7 +4,7 @@
 Q:25:N:Haunted House
 
 # Definition
-Q:25:Q:6:0:0:0:48:0:0:0:6
+Q:25:Q:6:0:0:0:22:0:0:0:6
 
 # Description for quest
 ?:[LEQ $QUEST25 2]
@@ -14,7 +14,7 @@ Q:25:T:the house is haunted and refuse to go near it. We need someone
 Q:25:T:to exorcise the evil spirits that are infesting the house.
 ?:1
 
-# Description for quest reward (Staff of Dispel Evil)
+# Description for quest reward
 ?:[EQU $QUEST25 3]
 Q:25:T:Well done, indeed! Our citizens can finally sigh in relief.
 Q:25:T:As a reward, we would like to give you something that will
@@ -31,74 +31,37 @@ Q:25:T:the house without even asking for a reward. Maybe you should
 Q:25:T:try to find them, you could learn a thing or two from them.
 ?:1
 
-# Trap or OOD item
-F:!:FLOOR:8:0:*10:0:0:*
-
-# Floor with a Hound of Tindalos
-F:Z:FLOOR:12:739
-
-# Floor with Raal's!
-F:?:FLOOR:8:557
-
-# Floor with Ipsissimus
-F:I:FLOOR:8:571
-
-# Floor with Nexus Q
-F:Q:FLOOR:8:480
-
-# Water
-F:=:DEEP_WATER:8
-
-# Floor, no tele
-F:s:FLOOR:12
-
-# Normal wall
+# Granite wall
 F:#:GRANITE:8
 
-# Shadow Demon
-F:S:FLOOR:8:665
+# Moaning spirit:
+F:M:FLOOR:8:231
 
-# Hand druj
-F:j:FLOOR:8:748
+# Banshee:
+F:B:FLOOR:8:394
 
-# Stairway to hell
-F:>:FLOOR:8:439
-
-# Skeletal Tyrannos.
-F:t:FLOOR:8:466
-
-# Spectral Tyrannos.
-F:T:FLOOR:8:705
-
-# Trap
-F:^:FLOOR:8:0:0:0:0:*
-
-# Undead Mass:
-F:m:FLOOR:8:202:0:0:0:*
+# Ghost:
+F:G:FLOOR:8:477
 
 # Spectre:
-F:C:FLOOR:8:508
-
-# Vampire:
-F:V:FLOOR:8:520
+F:S:FLOOR:8:508
 
 # Dungeon layout
-D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-D:X..D!..D^^^m^^m^^^D...........X
-D:X..X.t.X^^^^^^^^^^X...........X
-D:X!XXXXXXXXXXXXXXXXX...........X
-D:XDX...............X.!!!!!!!!!.X
-D:X.................X.!XXXXXXX!.X
-D:X..XXX..........==X.!XXXXXXX!.X
-D:X.XXZX..........=IX.!!!!!!!!!.X
-D:X.XssX.====.===.=IX...........X
-D:XDX#XX.=?Q=.=Q=.=IXT..........X
-D:X..XXXDXXXXDXXXDXXXXXXXXDXXXXXX
-D:X..X^....XSSSX...XjD^^^^^^^^D!X
-D:X..X..!..XSSSX.!.XXX^......^XXX
-D:X<.XC...CXSSSX.V.X!D^^^^^^^^D>X
-D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXX
+D:X##################X
+D:X#......#B.......G#X
+D:X#.####.###.....###X
+D:X#.#M.#.#B.......B#X
+D:X#.#..D.#####D#####X
+D:X#D####...........#X
+D:X#..###...........#X
+D:X#..###D####D###D##X
+D:X#..#.....#...#...#X
+D:X#..#.M.M.#.G.#.S.#X
+D:X#<.#.....#...#...#X
+D:X##################X
+D:XXXXXXXXXXXXXXXXXXXX
 
 # Starting position
-P:13:1
+P:11:2
 
