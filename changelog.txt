@@ -27,7 +27,7 @@ Interface changes:
 ------------------
 - Add a "simple stat display" option to show stats as numbers out of 40 instead of 18/220. 
 - Add a "display race" option to choose between the player always being @ or changing character based on their monster race. 
-- Draconians who choose Metamorphosis chance their character from @ to D. 
+- Draconians who choose Metamorphosis change their character from @ to D. 
 - When the player gets to choose a stat to increase, their stat maximums are displayed if known. 
 - The Bard's Clairaudience song no longer spams the player with messages.
 - Wands of heal monster and haste monster can target pets even if the player has the "allow targeting pets" option turned off. 
