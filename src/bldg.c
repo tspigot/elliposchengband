@@ -3081,7 +3081,8 @@ bool tele_town(void)
 
         if ((i == NO_TOWN) || 
             (i == SECRET_TOWN) || 
-            (i == p_ptr->town_num)) continue;
+            (i == p_ptr->town_num) || 
+            (!(p_ptr->visit & (1L << (i-1))) && !p_ptr->wizard)) continue;
 
         sprintf(buf,"%c) %-20s", I2A(i-1), town[i].name);
         prt(buf, 5+i, 5);
@@ -3107,7 +3108,7 @@ bool tele_town(void)
             return FALSE;
         }
         else if ((i < 'a') || (i > ('a'+max_towns-2))) continue;
-        else if (((i-'a'+1) == p_ptr->town_num) || ((i-'a'+1) == NO_TOWN) || ((i-'a'+1) == SECRET_TOWN)) continue;
+        else if (((i-'a'+1) == p_ptr->town_num) || ((i-'a'+1) == NO_TOWN) || ((i-'a'+1) == SECRET_TOWN) || (!(p_ptr->visit & (1L << (i-'a'))) && !p_ptr->wizard)) continue;
         break;
     }
 
