@@ -3902,7 +3902,7 @@ static bool travel_flow_aux(int y, int x, int n, bool wall)
     if (!(c_ptr->info & CAVE_AWARE)) return wall;
 
     /* In wilderness, don't scroll the target location off the map */
-    if (!dun_level && !p_ptr->inside_quest && !p_ptr->inside_battle && !p_ptr->inside_arena)
+    if (py_on_surface())
     {
         int     tqx = travel.x / WILD_SCROLL_CX;
         int     tqy = travel.y / WILD_SCROLL_CY;

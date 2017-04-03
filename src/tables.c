@@ -2448,9 +2448,6 @@ option_type option_info[] =
     { &random_artifacts,                FALSE, OPT_PAGE_BIRTH, 6, 23,
     "random_artifacts",                    "Randomize Standard Artifacts" },
 
-    { &half_fixedarts,                FALSE, OPT_PAGE_BIRTH, 6, 27,
-    "half_fixedarts",                    "Only replace half of fixedarts with randarts" },
-
     { &no_artifacts,                    FALSE, OPT_PAGE_BIRTH, 6, 24,
     "no_artifacts",                        "Never create artifacts" },
 

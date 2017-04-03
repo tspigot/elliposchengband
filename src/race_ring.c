@@ -1,5 +1,16 @@
 #include "angband.h"
 
+typedef struct {
+    int     effect;
+    int     level;
+    int     cost;
+    int     fail;
+    /*  TODO
+    s16b    extra; */
+} _spell_t, *_spell_ptr;
+static _spell_ptr _find_spell(int effect);
+static bool _gain_effect(effect_t e);
+
 static cptr _mon_name(int r_idx)
 {
     if (r_idx)
@@ -747,15 +758,6 @@ static caster_info * _caster_info(void)
     }
     return &me;
 }
-
-typedef struct {
-    int     effect;
-    int     level;
-    int     cost;
-    int     fail;
-/*  TODO
-    s16b    extra; */
-} _spell_t, *_spell_ptr;
 
 #define _MAX_PER_GROUP 30
 typedef struct {

@@ -4877,7 +4877,6 @@ int get_rep_dir(int *dp, bool under)
     {
         if (p_ptr->confused)
             msg_print("You are confused.");
-        }
         else
         {
             char m_name[80];

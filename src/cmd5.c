@@ -432,7 +432,7 @@ void do_cmd_study(void)
     if (mp_ptr->spell_book != TV_LIFE_BOOK)
     {
         /* Ask for a spell, allow cancel */
-        if (!get_spell(&spell, "study", prompt.obj->sval, FALSE, prompt.obj->tval - TV_LIFE_BOOK + 1)
+        if (!get_spell(&spell, "study", prompt.obj->sval, FALSE, prompt.obj->tval - TV_LIFE_BOOK + 1, FALSE)
             && (spell == -1)) return;
 
     }
@@ -736,7 +736,7 @@ static obj_ptr _get_spellbook(int mode)
 void do_cmd_cast(void)
 {
     obj_ptr      book;
-    int          spell, realm;
+    int          spell;
     int          chance;
     int          increment = 0;
     int          use_realm;
@@ -801,7 +801,7 @@ void do_cmd_cast(void)
 
     /* Ask for a spell */
     if (!get_spell(&spell, mp_ptr->spell_book == TV_LIFE_BOOK ? "recite" : "cast",
-        book->sval, TRUE, use_realm))
+        book->sval, TRUE, use_realm, FALSE))
     {
         if (spell == -2)
             msg_format("You don't know any %ss in that book.", prayer);
@@ -1168,7 +1168,7 @@ void do_cmd_browse(void)
     while(TRUE)
     {
         /* Ask for a spell, allow cancel */
-        if (!get_spell(&spell, "browse", book->sval, TRUE, use_realm))
+        if (!get_spell(&spell, "browse", book->sval, TRUE, use_realm, TRUE))
         {
             /* If cancelled, leave immediately. */
             if (spell == -1) break;
