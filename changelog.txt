@@ -13,7 +13,6 @@ Minor gameplay changes:
 - Items that give "auto pseudo-ID" also now improve pseudo-id by letting warrior-types sense jewelry and lights, and letting mage-types differentiate between good/excellent/special. 
 - Messages differentiate between "this is impossible to succeed at" versus "you failed this time but still have a chance of success" for things like Cavalry's Rodeo or Blue-Mage's spell learning.
 - All Nazgul count as valid "ringbearers" for Ring mimics.
-- Weaponsmiths can add or remove essences on worn items without having to unequip them first.
 - The wand of clone monster is back, for those who enjoyed scumming with it. 
 - Trying to zap an empty wand/rod/staff no longer costs a turn. 
 - The Psion's speed buff is no longer overridden by the smaller buff from a potion of speed.

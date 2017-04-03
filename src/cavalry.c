@@ -42,7 +42,7 @@ void rodeo_spell(int cmd, variant *res)
             cmsg_format(TERM_RED, "You cannot tame anything in here!");
             tame_success = FALSE;
         }
-        else if ((r_ptr->flags7 & RF7_GUARDIAN) || (r_ptr->flags1 & RF1_QUESTOR))
+        else if ((r_ptr->flags7 & RF7_GUARDIAN) || (m_ptr->mflag2 & MFLAG2_QUESTOR))
         {
             cmsg_format(TERM_RED, "It is impossible to tame %s!", m_name);
             tame_success = FALSE;
@@ -101,7 +101,7 @@ static void _calc_shooter_bonuses(object_type *o_ptr, shooter_info_t *info_ptr)
     if ( !p_ptr->shooter_info.heavy_shoot
       && p_ptr->shooter_info.tval_ammo == TV_ARROW )
     {
-        p_ptr->shooter_info.num_fire += p_ptr->lev * 150 / 50;
+        p_ptr->shooter_info.num_fire += p_ptr->lev * 2;
     }
 }
 
@@ -123,7 +123,7 @@ static void _birth(void)
     py_birth_obj_aux(TV_POLEARM, SV_BROAD_SPEAR, 1);
     py_birth_obj_aux(TV_SOFT_ARMOR, SV_LEATHER_SCALE_MAIL, 1);
     py_birth_obj_aux(TV_BOW, SV_SHORT_BOW, 1);
-    py_birth_obj_aux(TV_ARROW, SV_AMMO_NORMAL, 20);
+    py_birth_obj_aux(TV_ARROW, SV_ARROW, 20);
 }
 
 class_t *cavalry_get_class(void)

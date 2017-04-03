@@ -90,7 +90,7 @@ int py_birth(void)
     return result;
 }
 
-extern void py_birth_obj_aux(int tval, int sval, int qty)
+void py_birth_obj_aux(int tval, int sval, int qty)
 {
     object_type forge;
 
@@ -105,6 +105,10 @@ extern void py_birth_obj_aux(int tval, int sval, int qty)
         qty = 1;
         break;
     }
+    case TV_QUIVER:
+        object_prep(&forge, lookup_kind(tval, sval));
+        apply_magic(&forge, 0, AM_AVERAGE);
+        break;
     default:
         object_prep(&forge, lookup_kind(tval, sval));
     }
@@ -113,7 +117,7 @@ extern void py_birth_obj_aux(int tval, int sval, int qty)
     py_birth_obj(&forge);
 }
 
-extern void py_birth_obj(object_type *o_ptr)
+void py_birth_obj(object_type *o_ptr)
 {
     int slot;
 
@@ -124,37 +128,46 @@ extern void py_birth_obj(object_type *o_ptr)
     if (p_ptr->prace == RACE_ANDROID && object_is_body_armour(o_ptr))
         return;
 
-    /* Big hack for sexy players ... only get one melee weapon */
-    if ( p_ptr->personality == PERS_SEXY
-      && object_is_melee_weapon(o_ptr)
-      && !object_is_(o_ptr, TV_HAFTED, SV_WHIP) )
+    /* Weed out duplicate gear (e.g. Artemis Archer) but note
+     * that centipedes start with duplicate boots (so allow
+     * multiple objects provided they can also be equipped) */
+    if ( object_is_wearable(o_ptr)
+      && o_ptr->number == 1
+      && p_ptr->prace != RACE_MON_RING /* Hack: Ring cannot wear rings, but can absorb them for powers */
+      && equip_find_obj(o_ptr->tval, o_ptr->sval)
+      && !equip_first_empty_slot(o_ptr) ) /* Hack: Centipede gets multiple boots */
     {
         return;
     }
 
-    slot = equip_first_empty_slot(o_ptr);
-
-    /* Weed out duplicate gear (e.g. Artemis Archer), but allow things like Centipedes' multiple boots or Rings' unequippable starting jewelry. */
-    if (object_is_wearable(o_ptr) && o_ptr->number == 1 && !(slot || p_ptr->prace == RACE_MON_RING))
-        return;
-
     obj_identify_fully(o_ptr);
 
-    if (slot && o_ptr->number == 1)
-        equip_wield_aux(o_ptr, slot);
-    else
-        slot = inven_carry(o_ptr);
+    /* Big hack for sexy players ... only wield the starting whip,
+     * but carry the alternate weapon. Previously, sexy characters
+     * would usually start off dual-wielding (ineffectual and confusing)*/
+    if ( p_ptr->personality == PERS_SEXY
+      && p_ptr->prace != RACE_MON_SWORD
+      && object_is_melee_weapon(o_ptr)
+      && !object_is_(o_ptr, TV_HAFTED, SV_WHIP) )
+    {
+        pack_carry(o_ptr);
+        return;
+    }
 
-    autopick_alter_item(slot, FALSE);
+    slot = equip_first_empty_slot(o_ptr);
+    if (slot && o_ptr->number == 1)
+        equip_wield(o_ptr, slot);
+    else
+        pack_carry(o_ptr);
 }
 
 /* Standard Food and Light */
-extern void py_birth_food(void)
+void py_birth_food(void)
 {
     py_birth_obj_aux(TV_FOOD, SV_FOOD_RATION, 7);
 }
 
-extern void py_birth_light(void)
+void py_birth_light(void)
 {
     if (!p_ptr->see_nocto)  /* Ninjas and certain monster races can see in the dark. */
     {
@@ -536,7 +549,7 @@ static void _pers_ui(void)
     vec_ptr v = _pers_choices();
     for (;;)
     {
-        int cmd, i, split = vec_length(v);
+        int cmd, i, split = vec_length(v) + 1;
         doc_ptr cols[2];
 
         doc_clear(_doc);
@@ -558,6 +571,7 @@ static void _pers_ui(void)
                 pers_ptr->name
             );
         }
+        doc_insert(cols[vec_length(v) <= split ? 0 : 1], "  <color:y>*</color>) Random\n");
 
         doc_insert(_doc, "<color:G>Choose Your Personality</color>\n");
         doc_insert_cols(_doc, cols, 2, 1);
@@ -585,7 +599,8 @@ static void _pers_ui(void)
         }
         else
         {
-            i = A2I(cmd);
+            if (cmd == '*') i = randint0(vec_length(v));
+            else i = A2I(cmd);
             if (0 <= i && i < vec_length(v))
             {
                 personality_ptr pers_ptr = vec_get(v, i);
@@ -674,8 +689,9 @@ static void _race_group_ui(void)
         for (i = 0; i < vec_length(groups); i++)
         {
             _race_group_ptr g_ptr = vec_get(groups, i);
-            doc_printf( _doc, "  <color:y>%c</color>) %s\n", I2A(i), g_ptr->name);
+            doc_printf(_doc, "  <color:y>%c</color>) %s\n", I2A(i), g_ptr->name);
         }
+        doc_insert(_doc, "  <color:y>*</color>) Random\n");
         _sync_term(_doc);
 
         cmd = _inkey();
@@ -686,7 +702,8 @@ static void _race_group_ui(void)
         else if (cmd == '?') doc_display_help("Races.txt", NULL);
         else
         {
-            i = A2I(cmd);
+            if (cmd == '*') i = randint0(vec_length(groups));
+            else i = A2I(cmd);
             if (0 <= i && i < vec_length(groups))
             {
                 _race_group_ptr g_ptr = vec_get(groups, i);
@@ -704,7 +721,7 @@ static int _race_ui(int ids[])
 
     while (result == UI_NONE)
     {
-        int cmd, i, split = vec_length(v);
+        int cmd, i, split = vec_length(v) + 1;
         doc_ptr cols[2];
 
         doc_clear(_doc);
@@ -726,6 +743,7 @@ static int _race_ui(int ids[])
                 race_ptr->name
             );
         }
+        doc_insert(cols[vec_length(v) < split ? 0 : 1], "  <color:y>*</color>) Random\n");
 
         doc_insert(_doc, "<color:G>Choose Your Race</color>\n");
         doc_insert_cols(_doc, cols, 2, 1);
@@ -753,7 +771,8 @@ static int _race_ui(int ids[])
         }
         else
         {
-            i = A2I(cmd);
+            if (cmd == '*') i = randint0(vec_length(v));
+            else i = A2I(cmd);
             if (0 <= i && i < vec_length(v))
             {
                 int     old_id = p_ptr->prace;
@@ -833,7 +852,7 @@ static int _subrace_ui_aux(int ct, cptr desc, cptr help, cptr topic)
 {
     for (;;)
     {
-        int cmd, i, split = ct;
+        int cmd, i, split = ct + 1;
         doc_ptr cols[2];
 
         cols[0] = doc_alloc(30);
@@ -843,7 +862,7 @@ static int _subrace_ui_aux(int ct, cptr desc, cptr help, cptr topic)
         _race_class_top(_doc);
 
         if (split > 7)
-            split = (ct + 1)/2;
+            split = (split + 1)/2;
 
         for (i = 0; i < ct; i++)
         {
@@ -855,6 +874,8 @@ static int _subrace_ui_aux(int ct, cptr desc, cptr help, cptr topic)
                 i == p_ptr->psubrace ? 'B' : 'w',
                 race_ptr->subname);
         }
+        doc_insert(ct < split ? cols[0] : cols[1], "  <color:y>*</color>) Random\n");
+
         doc_printf(_doc, "<color:G>Choose %s</color>\n", desc);
         doc_insert_cols(_doc, cols, 2, 1);
         doc_insert(_doc, "     Use SHIFT+choice to display help topic\n");
@@ -879,7 +900,8 @@ static int _subrace_ui_aux(int ct, cptr desc, cptr help, cptr topic)
         }
         else
         {
-            i = A2I(cmd);
+            if (cmd == '*') i = randint0(ct);
+            else i = A2I(cmd);
             if (0 <= i && i < ct)
             {
                 p_ptr->psubrace = i;
@@ -963,7 +985,7 @@ static void _class_group_ui(void)
 
     for (;;)
     {
-        int cmd, split = vec_length(groups);
+        int cmd, split = vec_length(groups) + 1;
         doc_ptr cols[2];
 
         cols[0] = doc_alloc(30);
@@ -982,6 +1004,8 @@ static void _class_group_ui(void)
                 i < split ? cols[0] : cols[1],
                 "  <color:y>%c</color>) %s\n", I2A(i), g_ptr->name);
         }
+        doc_insert(cols[vec_length(groups) <= split ? 0 : 1], "  <color:y>*</color>) Random\n");
+
         doc_insert(_doc, "<color:G>Choose a Type of Class to Play</color>\n");
         doc_insert_cols(_doc, cols, 2, 1);
 
@@ -998,7 +1022,8 @@ static void _class_group_ui(void)
         else if (cmd == '?') doc_display_help("Classes.txt", NULL);
         else
         {
-            i = A2I(cmd);
+            if (cmd == '*') i = randint0(vec_length(groups));
+            else i = A2I(cmd);
             if (0 <= i && i < vec_length(groups))
             {
                 _class_group_ptr g_ptr = vec_get(groups, i);
@@ -1017,7 +1042,7 @@ static int _class_ui(int ids[])
 
     while (result == UI_NONE)
     {
-        int cmd, i, split = vec_length(v);
+        int cmd, i, split = vec_length(v) + 1;
         doc_ptr cols[2];
 
         doc_clear(_doc);
@@ -1039,6 +1064,7 @@ static int _class_ui(int ids[])
                 class_ptr->name
             );
         }
+        doc_insert(cols[vec_length(v) <= split ? 0 : 1], "  <color:y>*</color>) Random\n");
 
         doc_insert(_doc, "<color:G>Choose Your Class</color>\n");
         doc_insert_cols(_doc, cols, 2, 1);
@@ -1066,7 +1092,8 @@ static int _class_ui(int ids[])
         }
         else
         {
-            i = A2I(cmd);
+            if (cmd == '*') i = randint0(vec_length(v));
+            else i = A2I(cmd);
             if (0 <= i && i < vec_length(v))
             {
                 class_t *class_ptr = vec_get(v, i);
@@ -1142,6 +1169,7 @@ static int _warlock_ui(void)
                 class_ptr->subname
             );
         }
+        doc_insert(_doc, "  <color:y>*</color>) Random\n");
         doc_insert(_doc, "     Use SHIFT+choice to display help topic\n");
 
         _sync_term(_doc);
@@ -1161,7 +1189,8 @@ static int _warlock_ui(void)
         }
         else
         {
-            i = A2I(cmd);
+            if (cmd == '*') i = randint0(WARLOCK_MAX);
+            else i = A2I(cmd);
             if (0 <= i && i < WARLOCK_MAX)
             {
                 p_ptr->psubclass = i;
@@ -1191,6 +1220,7 @@ static int _weaponmaster_ui(void)
                 class_ptr->subname
             );
         }
+        doc_insert(_doc, "  <color:y>*</color>) Random\n");
         doc_insert(_doc, "     Use SHIFT+choice to display help topic\n");
 
         _sync_term(_doc);
@@ -1210,7 +1240,8 @@ static int _weaponmaster_ui(void)
         }
         else
         {
-            i = A2I(cmd);
+            if (cmd == '*') i = randint0(WEAPONMASTER_MAX);
+            else i = A2I(cmd);
             if (0 <= i && i < WEAPONMASTER_MAX)
             {
                 p_ptr->psubclass = i;
@@ -1240,6 +1271,7 @@ static int _devicemaster_ui(void)
                 class_ptr->subname
             );
         }
+        doc_insert(_doc, "  <color:y>*</color>) Random\n");
 
         _sync_term(_doc);
         cmd = _inkey();
@@ -1249,7 +1281,8 @@ static int _devicemaster_ui(void)
         else if (cmd == '?') doc_display_help("Classes.txt", "Devicemaster");
         else
         {
-            i = A2I(cmd);
+            if (cmd == '*') i = randint0(DEVICEMASTER_MAX);
+            else i = A2I(cmd);
             if (0 <= i && i < DEVICEMASTER_MAX)
             {
                 p_ptr->psubclass = i;
@@ -1279,6 +1312,7 @@ static int _gray_mage_ui(void)
                 class_ptr->subname
             );
         }
+        doc_insert(_doc, "  <color:y>*</color>) Random\n");
 
         _sync_term(_doc);
         cmd = _inkey();
@@ -1288,7 +1322,8 @@ static int _gray_mage_ui(void)
         else if (cmd == '?') doc_display_help("Classes.txt", "Gray-Mage");
         else
         {
-            i = A2I(cmd);
+            if (cmd == '*') i = randint0(GRAY_MAGE_MAX);
+            else i = A2I(cmd);
             if (0 <= i && i < GRAY_MAGE_MAX)
             {
                 p_ptr->psubclass = i;
@@ -1338,6 +1373,7 @@ static int _realm1_ui(void)
                 realm_names[id]
             );
         }
+        doc_insert(_doc, "  <color:y>*</color>) Random\n");
         doc_insert(_doc, "\n     Use SHIFT+choice to display help topic\n");
 
         _sync_term(_doc);
@@ -1359,7 +1395,8 @@ static int _realm1_ui(void)
         }
         else
         {
-            i = A2I(tolower(cmd));
+            if (cmd == '*') i = randint0(ct);
+            else i = A2I(cmd);
             if (0 <= i && i < ct)
             {
                 int id = choices[i];
@@ -1422,6 +1459,7 @@ static int _realm2_ui(void)
                 realm_names[id]
             );
         }
+        doc_insert(_doc, "  <color:y>*</color>) Random\n");
         doc_insert(_doc, "\n     Use SHIFT+choice to display help topic\n");
 
         _sync_term(_doc);
@@ -1443,7 +1481,8 @@ static int _realm2_ui(void)
         }
         else
         {
-            i = A2I(tolower(cmd));
+            if (cmd == '*') i = randint0(ct);
+            else i = A2I(cmd);
             if (0 <= i && i < ct)
             {
                 int id = choices[i];
@@ -1502,6 +1541,7 @@ static void _mon_race_group_ui(void)
             _race_group_ptr g_ptr = &_mon_race_groups[i];
             doc_printf( _doc, "  <color:y>%c</color>) %s\n", I2A(i), g_ptr->name);
         }
+        doc_insert(_doc, "  <color:y>*</color>) Random\n");
         _sync_term(_doc);
 
         cmd = _inkey();
@@ -1527,7 +1567,8 @@ static void _mon_race_group_ui(void)
         }
         else
         {
-            i = A2I(cmd);
+            if (cmd == '*') i = randint0(_MAX_MON_RACE_GROUPS);
+            else i = A2I(cmd);
             if (0 <= i && i < _MAX_MON_RACE_GROUPS)
             {
                 _race_group_ptr g_ptr = &_mon_race_groups[i];
@@ -1571,6 +1612,7 @@ static int _mon_race_ui(int ids[])
                 race_ptr->name
             );
         }
+        doc_insert(_doc, "  <color:y>*</color>) Random\n");
         doc_insert(_doc, "     Use SHIFT+choice to display help topic\n");
 
         _sync_term(_doc);
@@ -1593,7 +1635,8 @@ static int _mon_race_ui(int ids[])
         }
         else
         {
-            i = A2I(cmd);
+            if (cmd == '*') i = randint0(ct);
+            else i = A2I(cmd);
             if (0 <= i && i < ct)
             {
                 int     old_id = p_ptr->prace;
@@ -1697,6 +1740,7 @@ static int _dragon_realm_ui(void)
                 realm->name
             );
         }
+        doc_insert(_doc, "  <color:y>*</color>) Random\n");
         doc_insert(_doc, "     Use SHIFT+choice to display help topic\n");
 
         _sync_term(_doc);
@@ -1718,7 +1762,8 @@ static int _dragon_realm_ui(void)
         }
         else
         {
-            i = A2I(cmd);
+            if (cmd == '*') i = randint0(vec_length(v));
+            else i = A2I(cmd);
             if (0 <= i && i < vec_length(v))
             {
                 dragon_realm_ptr realm = vec_get(v, i);
@@ -2554,10 +2599,19 @@ static void _birth_finalize(void)
     if (game_mode == GAME_MODE_BEGINNER)
         no_wilderness = TRUE;
 
-    equip_on_init();
+    equip_init();
+    pack_init();
+    quiver_init();
+    towns_init();
+    home_init();
     virtue_init();
+    quests_on_birth();
 
     p_ptr->au = 450;
+
+    /* Everybody gets a chaos patron. The chaos warrior is obvious,
+     * but anybody else can acquire MUT_CHAOS_GIFT during the game */
+    p_ptr->chaos_patron = randint0(MAX_PATRON);
 
     get_max_stats();
     do_cmd_rerate_aux();

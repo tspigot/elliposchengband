@@ -46,7 +46,7 @@ void rune_calc_stats(object_type *o_ptr, s16b stats[MAX_STATS])
     }
     if (o_ptr->rune == RUNE_MIND)
     {
-        if (o_ptr->tval == TV_HELM)
+        if (object_is_helmet(o_ptr))
             stats[A_INT] += 2;
     }
     if (o_ptr->rune == RUNE_MIGHT)
@@ -63,53 +63,59 @@ cptr rune_desc(int which)
     switch (which)
     {
     case RUNE_ABSORPTION:
-        return "<<Absorption>>";
+        return "{Absorption}";
     case RUNE_PROTECTION:
-        return "<<Protection>>";
+        return "{Protection}";
     case RUNE_REGENERATION:
-        return "<<Regeneration>>";
+        return "{Regeneration}";
     case RUNE_FIRE:
-        return "<<Fire>>";
+        return "{Fire}";
     case RUNE_AIR:
-        return "<<Air>>";
+        return "{Air}";
     case RUNE_WATER:
-        return "<<Water>>";
+        return "{Water}";
     case RUNE_LIGHT:
-        return "<<Light>>";
+        return "{Light}";
     case RUNE_SHADOW:
-        return "<<Shadow>>";
+        return "{Shadow}";
     case RUNE_EARTH:
-        return "<<Earth>>";
+        return "{Earth}";
     case RUNE_UNDERSTANDING:
-        return "<<Understanding>>";
+        return "{Understanding}";
     case RUNE_ELEMENTAL_PROTECTION:
-        return "<<Preservation>>";
+        return "{Preservation}";
     case RUNE_HASTE:
-        return "<<Haste>>";
+        return "{Haste}";
     case RUNE_SEEING:
-        return "<<Seeing>>";
+        return "{Seeing}";
     case RUNE_SACRIFICE:
-        return "<<Sacrifice>>";
+        return "{Sacrifice}";
     case RUNE_LIFE:
-        return "<<Life>>";
+        return "{Life}";
     case RUNE_STABILITY:
-        return "<<Stability>>";
+        return "{Stability}";
     case RUNE_REFLECTION:
-        return "<<Reflection>>";
+        return "{Reflection}";
     case RUNE_DEATH:
-        return "<<Death>>";
+        return "{Death}";
     case RUNE_MIND:
-        return "<<Mind>>";
+        return "{Mind}";
     case RUNE_MIGHT:
-        return "<<Might>>";
+        return "{Might}";
     case RUNE_DESTRUCTION:
-        return "<<Destruction>>";
+        return "{Destruction}";
     case RUNE_GOOD_FORTUNE:
-        return "<<Luck>>";
+        return "{Luck}";
     case RUNE_IMMORTALITY:
-        return "<<Immortality>>";
+        return "{Immortality}";
     }
-    return "<<Unknown>>";
+    return "{Unknown}";
+}
+
+void _add_flag(obj_ptr obj, int which)
+{
+    add_flag(obj->flags, which);
+    add_flag(obj->known_flags, which);
 }
 
 bool rune_add(object_type *o_ptr, int which, bool prompt)    /* Birthing needs access to this ... */
@@ -134,7 +140,7 @@ bool rune_add(object_type *o_ptr, int which, bool prompt)    /* Birthing needs a
     if (prompt)
     {
         if (!get_check(
-                format("Really add %^s to %^s?", 
+                format("Really add %^s to %s?",
                     rune_desc(which), o_name))) return FALSE;
     }
 
@@ -149,102 +155,102 @@ bool rune_add(object_type *o_ptr, int which, bool prompt)    /* Birthing needs a
     switch (which)
     {
     case RUNE_PROTECTION:
-        add_flag(o_ptr->flags, OF_IGNORE_ACID);
+        _add_flag(o_ptr, OF_IGNORE_ACID);
         o_ptr->to_a += 2 + randint1(8);
         break;
 
     case RUNE_REGENERATION:
-        add_flag(o_ptr->flags, OF_REGEN);
+        _add_flag(o_ptr, OF_REGEN);
         break;
 
     case RUNE_FIRE:
         if (object_is_melee_weapon(o_ptr) || o_ptr->tval == TV_GLOVES)
-            add_flag(o_ptr->flags, OF_BRAND_FIRE);
+            _add_flag(o_ptr, OF_BRAND_FIRE);
         if (object_is_shield(o_ptr))
-            add_flag(o_ptr->flags, OF_RES_FIRE);
+            _add_flag(o_ptr, OF_RES_FIRE);
         if (object_is_body_armour(o_ptr))
         {
-            add_flag(o_ptr->flags, OF_RES_FIRE);
-            add_flag(o_ptr->flags, OF_AURA_FIRE);
+            _add_flag(o_ptr, OF_RES_FIRE);
+            _add_flag(o_ptr, OF_AURA_FIRE);
         }
         if (o_ptr->tval == TV_LITE || o_ptr->tval == TV_CLOAK)
-            add_flag(o_ptr->flags, OF_AURA_FIRE);
+            _add_flag(o_ptr, OF_AURA_FIRE);
         break;
 
     case RUNE_AIR:
         if (!object_is_melee_weapon(o_ptr))
-            add_flag(o_ptr->flags, OF_LEVITATION);
+            _add_flag(o_ptr, OF_LEVITATION);
         break;
 
     case RUNE_WATER:
-        add_flag(o_ptr->flags, OF_IGNORE_ACID);
+        _add_flag(o_ptr, OF_IGNORE_ACID);
         if (object_is_melee_weapon(o_ptr) || o_ptr->tval == TV_GLOVES)
-            add_flag(o_ptr->flags, OF_BRAND_ACID);
+            _add_flag(o_ptr, OF_BRAND_ACID);
         else
-            add_flag(o_ptr->flags, OF_RES_ACID);
+            _add_flag(o_ptr, OF_RES_ACID);
         break;
 
     case RUNE_LIGHT:
-        add_flag(o_ptr->flags, OF_RES_LITE);
+        _add_flag(o_ptr, OF_RES_LITE);
         break;
 
     case RUNE_SHADOW:
         if (o_ptr->tval != TV_CLOAK)
-            add_flag(o_ptr->flags, OF_RES_DARK);
+            _add_flag(o_ptr, OF_RES_DARK);
         break;
 
     case RUNE_EARTH:
         if (object_is_melee_weapon(o_ptr))
-            add_flag(o_ptr->flags, OF_VORPAL);
+            _add_flag(o_ptr, OF_VORPAL);
         else if (object_is_body_armour(o_ptr))
         {
-            add_flag(o_ptr->flags, OF_RES_SHARDS);
-            add_flag(o_ptr->flags, OF_AURA_SHARDS);
+            _add_flag(o_ptr, OF_RES_SHARDS);
+            _add_flag(o_ptr, OF_AURA_SHARDS);
         }
         else if (object_is_shield(o_ptr))
-            add_flag(o_ptr->flags, OF_RES_SHARDS);
+            _add_flag(o_ptr, OF_RES_SHARDS);
         else if (o_ptr->tval == TV_CLOAK)
-            add_flag(o_ptr->flags, OF_AURA_SHARDS);
+            _add_flag(o_ptr, OF_AURA_SHARDS);
         break;
 
     case RUNE_SEEING:
-        add_flag(o_ptr->flags, OF_RES_BLIND);
-        if (o_ptr->tval == TV_HELM)
-            add_flag(o_ptr->flags, OF_SEE_INVIS);
+        _add_flag(o_ptr, OF_RES_BLIND);
+        if (object_is_helmet(o_ptr))
+            _add_flag(o_ptr, OF_SEE_INVIS);
         break;
 
     case RUNE_LIFE:
-        add_flag(o_ptr->flags, OF_HOLD_LIFE);
+        _add_flag(o_ptr, OF_HOLD_LIFE);
         break;
 
     case RUNE_STABILITY:
-        add_flag(o_ptr->flags, OF_RES_NEXUS);
+        _add_flag(o_ptr, OF_RES_NEXUS);
         if (object_is_body_armour(o_ptr))
         {
-            add_flag(o_ptr->flags, OF_RES_CHAOS);
-            add_flag(o_ptr->flags, OF_RES_DISEN);
+            _add_flag(o_ptr, OF_RES_CHAOS);
+            _add_flag(o_ptr, OF_RES_DISEN);
         }
         break;
     
     case RUNE_REFLECTION:
-        add_flag(o_ptr->flags, OF_REFLECT);
+        _add_flag(o_ptr, OF_REFLECT);
         break;
 
     case RUNE_DEATH:
         if (object_is_melee_weapon(o_ptr))
-            add_flag(o_ptr->flags, OF_BRAND_VAMP);
+            _add_flag(o_ptr, OF_BRAND_VAMP);
         else
         {
-            add_flag(o_ptr->flags, OF_RES_NETHER);
+            _add_flag(o_ptr, OF_RES_NETHER);
             if (object_is_body_armour(o_ptr))
-                add_flag(o_ptr->flags, OF_RES_POIS);
+                _add_flag(o_ptr, OF_RES_POIS);
         }
         break;
 
     case RUNE_MIND:
-        add_flag(o_ptr->flags, OF_TELEPATHY);
-        if (o_ptr->tval == TV_HELM)
-            add_flag(o_ptr->flags, OF_SUST_INT);
+        _add_flag(o_ptr, OF_TELEPATHY);
+        if (object_is_helmet(o_ptr))
+            _add_flag(o_ptr, OF_SUST_INT);
         break;
 
     case RUNE_MIGHT:
@@ -252,9 +258,9 @@ bool rune_add(object_type *o_ptr, int which, bool prompt)    /* Birthing needs a
         o_ptr->to_d += randint1(5);
         if (object_is_body_armour(o_ptr))
         {
-            add_flag(o_ptr->flags, OF_SUST_STR);
-            add_flag(o_ptr->flags, OF_SUST_DEX);
-            add_flag(o_ptr->flags, OF_SUST_CON);
+            _add_flag(o_ptr, OF_SUST_STR);
+            _add_flag(o_ptr, OF_SUST_DEX);
+            _add_flag(o_ptr, OF_SUST_CON);
         }
         break;
 
@@ -269,25 +275,25 @@ bool rune_add(object_type *o_ptr, int which, bool prompt)    /* Birthing needs a
         break;
 
     case RUNE_IMMORTALITY:
-        add_flag(o_ptr->flags, OF_RES_TIME);
+        _add_flag(o_ptr, OF_RES_TIME);
         if (object_is_body_armour(o_ptr))
         {
-            add_flag(o_ptr->flags, OF_SUST_STR);
-            add_flag(o_ptr->flags, OF_SUST_INT);
-            add_flag(o_ptr->flags, OF_SUST_WIS);
-            add_flag(o_ptr->flags, OF_SUST_DEX);
-            add_flag(o_ptr->flags, OF_SUST_CON);
-            add_flag(o_ptr->flags, OF_SUST_CHR);
-            add_flag(o_ptr->flags, OF_HOLD_LIFE);
+            _add_flag(o_ptr, OF_SUST_STR);
+            _add_flag(o_ptr, OF_SUST_INT);
+            _add_flag(o_ptr, OF_SUST_WIS);
+            _add_flag(o_ptr, OF_SUST_DEX);
+            _add_flag(o_ptr, OF_SUST_CON);
+            _add_flag(o_ptr, OF_SUST_CHR);
+            _add_flag(o_ptr, OF_HOLD_LIFE);
         }
         break;
 
     case RUNE_ELEMENTAL_PROTECTION:
     case RUNE_GOOD_FORTUNE:
-        add_flag(o_ptr->flags, OF_IGNORE_ACID);
-        add_flag(o_ptr->flags, OF_IGNORE_FIRE);
-        add_flag(o_ptr->flags, OF_IGNORE_COLD);
-        add_flag(o_ptr->flags, OF_IGNORE_ELEC);
+        _add_flag(o_ptr, OF_IGNORE_ACID);
+        _add_flag(o_ptr, OF_IGNORE_FIRE);
+        _add_flag(o_ptr, OF_IGNORE_COLD);
+        _add_flag(o_ptr, OF_IGNORE_ELEC);
         break;
     }
 
@@ -301,30 +307,19 @@ bool rune_add(object_type *o_ptr, int which, bool prompt)    /* Birthing needs a
 /****************************************************************
  * Private Spells and Helpers
  ****************************************************************/
-
-typedef bool (*object_pred)(object_type *o_ptr);
-
-static object_type *_rune_object_prompt(object_pred pred)
+static object_type *_rune_object_prompt(obj_p filter)
 {
-    object_type * result = NULL;
-    object_pred   old = item_tester_hook;
-    int           item;
+    obj_prompt_t prompt = {0};
 
-    item_tester_hook = pred;
+    prompt.prompt = "Enchant which item?";
+    prompt.error = "You have nothing to enchant.";
+    prompt.filter = filter;
+    prompt.where[0] = INV_PACK;
+    prompt.where[1] = INV_EQUIP;
+    prompt.where[2] = INV_FLOOR;
 
-    if (get_item(&item, 
-                 "Enchant which item?", 
-                 "You have nothing to enchant.", 
-                 (USE_EQUIP | USE_INVEN | USE_FLOOR))) 
-    {
-        if (item >= 0) /* Pack */
-            result = &inventory[item];
-        else /* Floor */
-            result = &o_list[0 - item];
-    }
-
-    item_tester_hook = old;
-    return result;
+    obj_prompt(&prompt);
+    return prompt.obj;
 }
 
 static void _rune_default_spell(int cmd, variant *res)
@@ -374,7 +369,7 @@ static void _rune_of_absorption_spell(int cmd, variant *res)
         break;
     }
     case SPELL_COST_EXTRA:
-        var_set_int(res, MAX(1, p_ptr->msp * 3 / 10));
+        var_set_int(res, 0); /* was MAX(1, p_ptr->msp * 3 / 10)*/
         break;
     default:
         _rune_default_spell(cmd, res);
@@ -570,7 +565,7 @@ static void _rune_of_water_spell(int cmd, variant *res)
 
 static bool _rune_of_light_pred(object_type *o_ptr)
 {
-    if ( o_ptr->tval == TV_HELM
+    if ( object_is_helmet(o_ptr)
       || o_ptr->tval == TV_LITE )
     {
         return TRUE;
@@ -607,7 +602,7 @@ static bool _rune_of_shadow_pred(object_type *o_ptr)
 {
     if ( object_is_shield(o_ptr)
       || object_is_body_armour(o_ptr)
-      || o_ptr->tval == TV_HELM
+      || object_is_helmet(o_ptr)
       || o_ptr->tval == TV_CLOAK )
     {
         return TRUE;
@@ -679,7 +674,7 @@ static void _rune_of_earth_spell(int cmd, variant *res)
 
 static bool _rune_of_understanding_pred(object_type *o_ptr)
 {
-    if ( o_ptr->tval == TV_HELM
+    if ( object_is_helmet(o_ptr)
       || o_ptr->tval == TV_LITE )
     {
         return TRUE;
@@ -776,7 +771,7 @@ static void _rune_of_haste_spell(int cmd, variant *res)
 
 static bool _rune_of_seeing_pred(object_type *o_ptr)
 {
-    if ( o_ptr->tval == TV_HELM
+    if ( object_is_helmet(o_ptr)
       || o_ptr->tval == TV_LITE )
     {
         return TRUE;
@@ -874,7 +869,7 @@ static void _rune_of_life_spell(int cmd, variant *res)
 static bool _rune_of_stability_pred(object_type *o_ptr)
 {
     if ( object_is_body_armour(o_ptr)
-      || o_ptr->tval == TV_HELM
+      || object_is_helmet(o_ptr)
       || o_ptr->tval == TV_CLOAK
       || o_ptr->tval == TV_BOOTS )
     {
@@ -939,7 +934,7 @@ static bool _rune_of_death_pred(object_type *o_ptr)
     if ( object_is_melee_weapon(o_ptr)
       || object_is_shield(o_ptr)
       || object_is_body_armour(o_ptr)
-      || o_ptr->tval == TV_HELM )
+      || object_is_helmet(o_ptr) )
     {
         return TRUE;
     }
@@ -973,7 +968,7 @@ static void _rune_of_death_spell(int cmd, variant *res)
 
 static bool _rune_of_mind_pred(object_type *o_ptr)
 {
-    if ( o_ptr->tval == TV_HELM 
+    if ( object_is_helmet(o_ptr) 
       || o_ptr->tval == TV_LITE ) 
     {
         return TRUE;
@@ -1009,7 +1004,7 @@ static void _rune_of_mind_spell(int cmd, variant *res)
 static bool _rune_of_might_pred(object_type *o_ptr)
 {
     if ( object_is_body_armour(o_ptr) 
-      || o_ptr->tval == TV_HELM ) 
+      || object_is_helmet(o_ptr) ) 
     {
         return TRUE;
     }
@@ -1107,7 +1102,7 @@ static bool _rune_of_immortality_pred(object_type *o_ptr)
 {
     if ( object_is_shield(o_ptr) 
       || object_is_body_armour(o_ptr)
-      || o_ptr->tval == TV_HELM 
+      || object_is_helmet(o_ptr) 
       || o_ptr->tval == TV_CLOAK )
     {
         return TRUE;
@@ -1151,7 +1146,7 @@ typedef struct {
     cptr help;
     int color;
     spell_info spells[_MAX_SPELLS_PER_GROUP];    /* There is always a sentinel at the end */
-} _spell_group;
+} _spell_group, *_spell_group_ptr;
 
 static _spell_group _spell_groups[_MAX_SPELL_GROUPS] = {
     { "Runes of Creation",
@@ -1265,6 +1260,22 @@ static int _get_spells_imp(spell_info* spells, int max, _spell_group *spell_grou
     return ct;
 }
 
+static void _character_dump(doc_ptr doc)
+{
+    int i;
+    doc_printf(doc, "<topic:Spells>==================================== <color:keypress>S</color>pells ===================================\n\n");
+    for (i = 0; i < _MAX_SPELL_GROUPS; i++)
+    {
+        _spell_group_ptr group = &_spell_groups[i];
+        spell_info       spells[_MAX_SPELLS_PER_GROUP];
+        int              ct = _get_spells_imp(spells, _MAX_SPELLS_PER_GROUP, group); 
+
+        if (!ct) continue;
+        doc_printf(doc, "<color:%c>%s</color>\n", attr_to_attr_char(group->color), group->name);
+        py_display_spells_aux(doc, spells, ct);
+    }
+}
+
 static void _spell_menu_fn(int cmd, int which, vptr cookie, variant *res)
 {
     switch (cmd)
@@ -1330,6 +1341,35 @@ static void _birth(void)
     py_birth_obj_aux(TV_POTION, SV_POTION_SPEED, 1);
 }
 
+static bool _destroy_object(obj_ptr obj)
+{
+    if (obj->rune == RUNE_SACRIFICE)
+    {
+        bool is_equipped = obj->loc.where == INV_EQUIP;
+        int add_hp = is_equipped ? p_ptr->mhp : p_ptr->mhp/3;
+        int add_sp = is_equipped ? p_ptr->msp : p_ptr->msp/3;
+
+        msg_print("You feel a surge of wondrous power enter your body.");
+
+        p_ptr->chp = MIN(p_ptr->mhp, p_ptr->chp + add_hp);
+        p_ptr->chp_frac = 0;
+        p_ptr->csp = MIN(p_ptr->msp, p_ptr->csp + add_sp);
+        p_ptr->csp_frac = 0;
+
+        p_ptr->redraw |= (PR_MANA);
+        p_ptr->window |= (PW_SPELL);
+        p_ptr->redraw |= (PR_HP);
+
+        if (is_equipped)
+        {
+            blast_object(obj);
+            obj->curse_flags = OFC_HEAVY_CURSE;
+        }
+        return TRUE;
+    }
+    return FALSE;
+}
+
 class_t *rune_knight_get_class(void)
 {
     static class_t me = {0};
@@ -1368,6 +1408,8 @@ class_t *rune_knight_get_class(void)
         me.calc_bonuses = _calc_bonuses;
         me.caster_info = _caster_info;
         me.get_spells = _get_spells;
+        me.destroy_object = _destroy_object;
+        me.character_dump = _character_dump;
         init = TRUE;
     }
 

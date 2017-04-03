@@ -6,28 +6,32 @@ include Makefile.src
 INCLUDE = $(HDRS)
 OBJECTS = $(ANGFILES) $(CFILES) $(ZFILES)
 SRCS    = ${OBJECTS:.o=.c} ${MAINFILES:.o=.c}
-PROG    = poschengband$(PROG_SUFFIX)
+PROG    = $(PROGNAME)$(PROG_SUFFIX)
 # VERSION := $(shell ../scripts/version.sh)
 
 #Use this for debug code:
-CFLAGS += -DBUILD_ID=${VERSION} -I. -std=c99 -Wdeclaration-after-statement -O0 -g -fno-omit-frame-pointer
+#Note: configure is not setting _GNU_SOURCE for us, but is in vanilla Angband.
+#      I can't figure out how, though. Perhaps sdl is doing it:
+#      >sdl-config --cflags
+#      -I/usr/include/SDL -D_GNU_SOURCE=1 -D_REENTRANT
+CFLAGS += -D_GNU_SOURCE=1 -DBUILD_ID=${VERSION} -I. -std=c99 -Wdeclaration-after-statement -O0 -g -fno-omit-frame-pointer
 
 #Use this for release code:
-#CFLAGS += -DBUILD_ID=${VERSION} -I. -std=c99 -Wdeclaration-after-statement -DNDEBUG -O2 -fno-omit-frame-pointer
+#CFLAGS += -D_GNU_SOURCE=1 -DBUILD_ID=${VERSION} -I. -std=c99 -Wdeclaration-after-statement -DNDEBUG -O2 -fno-omit-frame-pointer
 
 CLEAN = poschengband.o $(OBJECTS) win/poschengband.res
 DISTCLEAN = autoconf.h
 
 export CFLAGS LDFLAGS LIBS
 
-$(PROG): poschengband.o $(MAINFILES)
-	$(CC) -o $@ poschengband.o $(MAINFILES) $(LDFLAGS) $(LDADD) $(LIBS)
+$(PROG): $(PROGNAME).o $(MAINFILES)
+	$(CC) -o $@ $(PROGNAME).o $(MAINFILES) $(LDFLAGS) $(LDADD) $(LIBS)
 	@printf "%10s %-20s\n" LINK $@
 
-win/poschengband.res: win/poschengband.rc
+$(PROGNAME).res: $(PROGNAME).rc
 	$(RC) $< -O coff -o $@
 
-poschengband.o: $(OBJECTS)
+$(PROGNAME).o: $(OBJECTS)
 	$(LD) -nostdlib -Wl,-r -o $@ $(OBJECTS)
 	@printf "%10s %-20s\n" LINK $@
 
