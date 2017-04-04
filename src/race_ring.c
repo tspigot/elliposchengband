@@ -484,17 +484,18 @@ static bool _drain_essences(int div)
 static bool _gain_effect(effect_t e)
 {
     /* The savefile still records effects that the player can't cast. Useful if an update adds new spells to the castable list, I suppose. */
-    _effects[e.type]++; 
     if (_find_spell(e.type))
     {
         if (!_effects[e.type])
             msg_format("You have gained the power of '%s'.", do_effect(&e, SPELL_NAME, 0));
         else
             msg_format("Your power of '%s' has grown stronger.", do_effect(&e, SPELL_NAME, 0));
+        _effects[e.type]++;
         return TRUE;
     }
     else
     {
+        _effects[e.type]++;
         return FALSE;
     }
 }

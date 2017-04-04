@@ -299,8 +299,8 @@ void pack_calc_bonuses(void)
     for (slot = 1; slot <= pack_max(); slot++)
     {
         obj_ptr obj = inv_obj(_inv, slot);
-        obj_flags(obj, flgs);
         if (!obj) continue;
+        obj_flags(obj, flgs);
         if (obj->name1 == ART_MAUL_OF_VICE)
             p_ptr->maul_of_vice = TRUE;
         if (obj->rune == RUNE_ELEMENTAL_PROTECTION)
