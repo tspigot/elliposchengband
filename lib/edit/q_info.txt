@@ -143,42 +143,42 @@ F:q_cloning_pits.txt
 ########################################################################
 # Random Quests ... assigned in quests_on_birth()
 ########################################################################
-N:40:12:Angband L12
+N:40:6:Angband L6
 T:RANDOM
 W:angband
 G:KILL(*)
 
-N:41:24:Angband L24
+N:41:13:Angband L13
 T:RANDOM
 W:angband
 G:KILL(*)
 
-N:42:38:Angband L38
+N:42:21:Angband L21
 T:RANDOM
 W:angband
 G:KILL(*)
 
-N:43:44:Angband L44
+N:43:30:Angband L30
 T:RANDOM
 W:angband
 G:KILL(*)
 
-N:44:50:Angband L50
+N:44:39:Angband L39
 T:RANDOM
 W:angband
 G:KILL(*)
 
-N:45:56:Angband L56
+N:45:48:Angband L48
 T:RANDOM
 W:angband
 G:KILL(*)
 
-N:46:62:Angband L62
+N:46:57:Angband L57
 T:RANDOM
 W:angband
 G:KILL(*)
 
-N:47:68:Angband L68
+N:47:66:Angband L66
 T:RANDOM
 W:angband
 G:KILL(*)
@@ -188,7 +188,7 @@ T:RANDOM
 W:angband
 G:KILL(*)
 
-N:49:88:Angband L88
+N:49:87:Angband L87
 T:RANDOM
 W:angband
 G:KILL(*)

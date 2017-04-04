@@ -609,15 +609,20 @@ static void _get_questor(quest_ptr q)
 
     for(attempt = 0;; attempt++)
     {
-        int accept_lev = q->level + q->level / 20;
-        int mon_lev = q->level + 5 + randint1(q->level / 10);
 
-        /* Hacks for high level quests */
-        if (accept_lev > 88)
-            accept_lev = 88;
-
-        if (mon_lev > 88)
-            mon_lev = 88;
+        int min_lev = q->level + 1;
+        int max_lev = q->level + 9;
+        int mon_lev;
+        if (q->level < 10)
+            max_lev -= 2;
+        else if (q->level < 20)
+            max_lev -= 1;
+        else if (q->level > 80)
+            max_lev += 2;
+        else if (q->level > 70)
+            max_lev += 1;
+        mon_lev = (min_lev + max_lev + 1) / 2;
+        mon_lev += randint0(max_lev - mon_lev + 1);
 
         unique_count = 0; /* Hack: get_mon_num assume level generation and restricts uniques per level */
         r_idx = get_mon_num(mon_lev);
@@ -637,8 +642,8 @@ static void _get_questor(quest_ptr q)
         if (r_ptr->flags7 & RF7_FRIENDLY) continue;
         if (r_ptr->flags7 & RF7_AQUATIC) continue;
         if (r_ptr->flags8 & RF8_WILD_ONLY) continue;
-        if (r_ptr->level > q->level + 12) continue;
-        if (r_ptr->level > accept_lev || attempt > 5000)
+        if (r_ptr->level > max_lev) continue;
+        if (r_ptr->level > min_lev || attempt > 5000)
         {
             q->goal_idx = r_idx;
             if (r_ptr->flags1 & RF1_UNIQUE)
