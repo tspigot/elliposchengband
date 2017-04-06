@@ -9743,7 +9743,8 @@ M:%.#####.#####.%
 M:%.............%
 M:%%%%%%%%%%%%%%%
 
-# New Vaults 
+#####################################
+# New Vaults (clouded)
 N:More Cells
 T:VAULT:LESSER
 W:30:70:1
@@ -10247,6 +10248,348 @@ M:%.XXX...%%%                               %%%...XXX.%
 M:%.XX..%%%                                   %%%..XX.%
 M:%....%%                                       %%....%
 M:%%%%%%                                         %%%%%%
+
+N:Greater vault (Hall)
+T:VAULT:GREATER
+W:40:*:1
+L:5:OBJ(*, DEPTH+7)
+M:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+M:%.................................%
+M:%..........XXXXXXXXXXXXX..........%
+M:%......XXXXXXXXX...XXXXXXXXX......%
+M:%...XXXXXXXXXXX.....XXXXXXXXXXX...%
+M:%..XX999X.&..+.......+..&.X999XX..%
+M:%.XX5559X..&.X.X...X.X.&..X9555XX.%
+M:%.X95985X+XXXX.......XXXX+X58959X.%
+M:%.X95895X..@.X.X...X.X.@..X59859X.%
+M:%.X99555+.@..X.......X..@.+55599X.%
+M:%.XXXXXXXXXX+X.X...X.X+XXXXXXXXXX.%
+M:%.X*****X59..X.......X..95X*****X.%
+M:%.X*999*X59@.X.X...X.X.@95X*999*X.%
+M:%.X*****XXXXXX.......XXXXXX*****X.%
+M:%.XXX+XXX....X.X...X.X....XXX+XXX.%
+M:%.X@....+.@@.+.......+.@@.+....@X.%
+M:%.XXX+XXX....X.X...X.X....XXX+XXX.%
+M:%.X*****XXXXXX.......XXXXXX*****X.%
+M:%.X*999*X,,,,X.X...X.X,,,,X*999*X.%
+M:%.X*****X,,,,X.......X,,,,X*****X.%
+M:%.XXXXXXXXXX+X.X...X.X+XXXXXXXXXX.%
+M:%.X.....+.&..X.......X..&.+.....X.%
+M:%.X.,,,.X..&.X.X...X.X.&..X.,,,.X.%
+M:%.X.,,,.X+XXXX.......XXXX+X.,,,.X.%
+M:%.XX.,,.X..&.X.X...X.X.&..X.,,.XX.%
+M:%..XX...X.&..+.......+..&.X...XX..%
+M:%...XXXXXXXXXXX.....XXXXXXXXXXX...%
+M:%......XXXXXXXXX...XXXXXXXXX......%
+M:%..........XXXXX+++XXXXX..........%
+M:%.................................%
+M:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+N:Greater vault (Open)
+T:VAULT:GREATER
+W:60:*:1
+L:3:OBJ(*, DEPTH+3)
+L:5:OBJ(*, DEPTH+7)
+L:$:OBJ(GOLD)
+M:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+M:%..........................................%
+M:%.XXXXXXXXXXXXXXXXXXX++XXXXXXXXXXXXXXXXXXX.%
+M:%.X88X,9X,8X,9X,8X,9X..X,9X,8X,9X,8X,9X88X.%
+M:%.X88X&&X&&X&&X&&X&&X..X&&X&&X&&X&&X&&X88X.%
+M:%.X+XX+XX+XX+XX+XX+XX..X+XX+XX+XX+XX+XXX+X.%
+M:%.X8&X................................+&,X.%
+M:%.X,&+.@............................@.X&8X.%
+M:%.XXXX................................XXXX.%
+M:%.X9&X................................+&,X.%
+M:%.X,&+................................X&9X.%
+M:%.XXXX...........$$$$$$$$$$...........XXXX.%
+M:%.X8&X...........$$$$$$$$$$...........+&,X.%
+M:%.X,&+...........$$$$33$$$$...........X&8X.%
+M:%.XXXX...........$$$3333$$$...........XXXX.%
+M:%.+..............$$335533$$..............+.%
+M:%.+..............$$335533$$..............+.%
+M:%.XXXX...........$$$3333$$$...........XXXX.%
+M:%.X8&X...........$$$$33$$$$...........+&,X.%
+M:%.X,&+...........$$$$$$$$$$...........X&8X.%
+M:%.XXXX...........$$$$$$$$$$...........XXXX.%
+M:%.X9&X................................+&,X.%
+M:%.X,&+................................X&9X.%
+M:%.XXXX................................XXXX.%
+M:%.X8&X.@............................@.+&,X.%
+M:%.X,&+................................X&8X.%
+M:%.X+XXX+XX+XX+XX+XX+X..XX+XX+XX+XX+XX+XX+X.%
+M:%.X88X&&X&&X&&X&&X&&X..X&&X&&X&&X&&X&&X88X.%
+M:%.X88X9,X8,X9,X8,X9,X..X9,X8,X9,X8,X9,X88X.%
+M:%.XXXXXXXXXXXXXXXXXXX++XXXXXXXXXXXXXXXXXXX.%
+M:%..........................................%
+M:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+N:Greater vault (Twisted Checkerboard)
+T:VAULT:GREATER
+W:60:*:1
+M:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+M:%#XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX#%
+M:%X9X8X9X8X9X8X9X8X9X8X9X8X9X8X9X8X%
+M:%XX#X#X#X#X#X#X#X#X#X#X#X#X#X#X#XX%
+M:%X8X9X8X9X8X9X8X9X8X9X8X9X8X9X8X9X%
+M:%XX#X#X#X#X#X#X#X#X#X#X#X#X#X#X#XX%
+M:%X9X8X9X8X9X8X9X8X9X8X9X8X9X8X9X8X%
+M:%XX#X#X#X#X#X#X#X#X#X#X#X#X#X#X#XX%
+M:%X8X9X8X9X8X9X8X9X8X9X8X9X8X9X8X9X%
+M:%XX#X#X#X#X#X#X#X#X#X#X#X#X#X#X#XX%
+M:%X9X8X9X8X9X8X9X8X9X8X9X8X9X8X9X8X%
+M:%XX#X#X#X#X#X#X#X#X#X#X#X#X#X#X#XX%
+M:%X8X9X8X9X8X9X8X9X8X9X8X9X8X9X8X9X%
+M:%#XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX#%
+M:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+N:Greater vault (Convoluted)
+T:VAULT:GREATER
+W:40:*:1
+L:3:OBJ(*, DEPTH+3)
+L:5:OBJ(*, DEPTH+7))
+M:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+M:%................................................%
+M:%......XXXXXXXX.....XXXXXXXXXX.....XXXXXXXX......%
+M:%....XXX&#XXX&XXX.XXX..XXXX..XXX.XXX&XXX#&XXX....%
+M:%...XX..XX99XX..XXX..XX.XX.XX..XXX..XX99XX..XX...%
+M:%...X.XX.X99X.XX.X.XXX.X&&X.XXX.X.XX.X99X.XX.X...%
+M:%..XXX..XXXXXX..X.X9X@XXXXXX@X9X.X..XXXXXX..XXX..%
+M:%..X8#XX.&XX&.XXXXXXXX#3333#XXXXXXXX.&XX&.XX#8X..%
+M:%.XXXXX.XXXXXX.X@XXX99XXXXXX99XXX@X.XXXXXX.XXXXX.%
+M:%.X&X..X#****XX#XXXXXX#5555#XXXXXX#XX****#X..X&X.%
+M:%.XX.XX.X*53*^^X,,,X88XXXXXX88X,,,X^^*35*X.XX.XX.%
+M:%.XX.XX.X*35*^^X,,,XXXX#XX#XXXX,,,X^^*53*X.XX.XX.%
+M:%.X&X..X#****XX#XXXXX.@X88X@.XXXXX#XX****#X..X&X.%
+M:%.XXXXX.XXXXXX.X@X@.#XXXXXXXX#.@X@X.XXXXXX.XXXXX.%
+M:%..X8#XX.&XX&.XXXXXXX&.#XX#.&XXXXXXX.&XX&.XX#8X..%
+M:%..XXX..XXXXXX..X.X&XXXX&&XXXX&X.XX.XXXXXX..XXX..%
+M:%...X.XX.X99X.XX.X.XX..#XX#..XX.X.XX.X99X.XX.X...%
+M:%...XX..XX99XX..XXX..XXX^^XXX..XXX..XX99XX..XX...%
+M:%....XXX&#XXX&XXX.XXX#9X^^X9#XXX.XXX&XXX#&XXX....%
+M:%......XXXXXXXX.....XXXX++XXXX.....XXXXXXXX......%
+M:%................................................%
+M:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+N:Greater vault (Star)
+T:VAULT:GREATER
+W:40:*:1
+M:        %%%%%%%%%%        
+M:        %........%        
+M:        %.XX++XX.%        
+M:   %%%%%%.X....X.%%%%%%   
+M:   %......X....X......%   
+M:   %.XXXXXX....XXXXXX.%   
+M:   %.X&...+.&&.+...&X.%   
+M:   %.X....XXXXXX....X.%   
+M:%%%%.X....X9999X....X.%%%%
+M:%....X...&X9XX9X&...X....%
+M:%.XXXX+XXXX9XX9XXXX+XXXX.%
+M:%.X@...XXXX#XX#XXXX...@X.%
+M:%.X....X999X88X999X....X.%
+M:%.X....X999X88X999X....X.%
+M:%.X@...XXXX#XX#XXXX...@X.%
+M:%.XXXX+XXXX&XX&XXXX+XXXX.%
+M:%....X...&X&XX&X&...X....%
+M:%%%%.X....X&&&&X....X.%%%%
+M:   %.X....XX##XX....X.%   
+M:   %.X&...+....+...&X.%   
+M:   %.XXXXXX....XXXXXX.%   
+M:   %......X....X......%   
+M:   %%%%%%.X9..9X.%%%%%%   
+M:        %.XXXXXX.%        
+M:        %........%        
+M:        %%%%%%%%%%        
+
+N:Greater vault (Keep)
+T:VAULT:GREATER
+W:40:*:1
+L:T:TREE
+M:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+M:%...................................%
+M:%........XXXXXXXXX.XXXXXXXXX........%
+M:%.....XXXX&XXX.#8X.X8#.XXX&XXXX.....%
+M:%....XX&X.X.X.XXXX.XXXX.X.X.X&XX....%
+M:%...XXXX.XXX.XXX&...&XXX.XXX.XXXX...%
+M:%..XX..X.X8X.X.XXX.XXX.X.X8X.X..XX..%
+M:%.XX.XX.XX#XX.X.X.X.X.X.XX#XX.XX.XX.%
+M:%.XX#XXXX@X.X.X+XX.XX+X.X.X@XXXX#XX.%
+M:%.X9X9XX*X*X.XX.......XX.X*X*XX9X9X.%
+M:%.XXXXX*X*X*XX....T....XX*X*X*XXXXX.%
+M:%.X99X&X*X*XX..T.....T..XX*X*X&X99X.%
+M:%.X99#X*X*X@X...........X@X*X*X#99X.%
+M:%.X99X&X*X*XX..T.....T..XX*X*X&X99X.%
+M:%.XXXXX*X*X*XX....T....XX*X*X*XXXXX.%
+M:%.X9X9XX*X*X.XX.......XX.X*X*XX9X9X.%
+M:%.XX#XXXX@X.X.X+XX.XX+X.X.X@XXXX#XX.%
+M:%.XX.XX.XX#XX.X.X.X.X.X.XX#XX.XX.XX.%
+M:%..XX..X.X8X.X.XXX.XXX.X.X8X.X..XX..%
+M:%...XXXX.XXX.XXX&...&XXX.XXX.XXXX...%
+M:%....XX&X.X.X.XXXX.XXXX.X.X.X&XX....%
+M:%.....XXXX&XXX.#8X.X8#.XXX&XXXX.....%
+M:%........XXXXXXXXX.XXXXXXXXX........%
+M:%...................................%
+M:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+N:Greater vault (Ringway)
+T:VAULT:GREATER
+W:40:*:1
+M:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+M:%.................................................%
+M:%.................XXXX.......XXXX.................%
+M:%.............XXXXX..XXXXXXXXX..XXXXX.............%
+M:%.......XXXXXXX9..#..#..9X9..#..#..9XXXXXXX.......%
+M:%.XXXXXXXXXXXXXXXXX..XXXXXXXXX..XXXXXXXXXXXXXXXXX.%
+M:%.X................&&.........&&................X.%
+M:%.X................&&.........&&................X.%
+M:%.X..XXXXXXXXXXXXXX..XXXXXXXXX..XXXXXXXXXXXXXX..X.%
+M:%.X..X8,,,,,,,#9..#..#..9X9..#..#..9#,,,,,,,8X..X.%
+M:%.X^^XXXXXXXXXXXXXX..XXXXXXXXX..XXXXXXXXXXXXXX^^X.%
+M:%.X^^XXXXXXXXXXXXXXXXX999X999XXXXXXXXXXXXXXXXX^^X.%
+M:%..................&&#989X989#&&..................%
+M:%.X^^XXXXXXXXXXXXXXXXX999X999XXXXXXXXXXXXXXXXX^^X.%
+M:%.X^^XXXXXXXXXXXXXX..XXXXXXXXX..XXXXXXXXXXXXXX^^X.%
+M:%.X..X8,,,,,,,#9..#..#..9X9..#..#..9#,,,,,,,8X..X.%
+M:%.X..XXXXXXXXXXXXXX..XXXXXXXXX..XXXXXXXXXXXXXX..X.%
+M:%.X................&&.........&&................X.%
+M:%.X................&&.........&&................X.%
+M:%.XXXXXXXXXXXXXXXXX..XXXXXXXXX..XXXXXXXXXXXXXXXXX.%
+M:%.......XXXXXXX9..#..#..9X9..#..#..9XXXXXXX.......%
+M:%.............XXXXX..XXXXXXXXX..XXXXX.............%
+M:%.................XXXX.......XXXX.................%
+M:%.................................................%
+M:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+N:Greater vault (Boxed)
+T:VAULT:GREATER
+W:40:*:1
+M:%%%%%%%%%%%%%%%%%%%%%%%%%%%
+M:%.........................%
+M:%........XXXXXXXXX........%
+M:%.....XXXX8#999#8XXXX.....%
+M:%..XXXX&XXXX989XXXX&XXXX..%
+M:%..X9#.X.#9X999X9#.X.#9X..%
+M:%.XXXXX.XXXXX+XXXXX.XXXXX.%
+M:%.X,,,X.X,,,X.X,,,X.X,,,X.%
+M:%.X,,,+.X,,,X.X,,,X.+,,,X.%
+M:%.X,,,X.X,,,X.X,,,X.X,,,X.%
+M:%.XXXXX.XX+XX.XX+XX.XXXXX.%
+M:%....X&X&X.X&X&X.X&X&X....%
+M:%.X..XX.XX.XX.XX.XX.XX..X.%
+M:%.....+.+.X.+.+.X.+.+.....%
+M:%.X..XX.XX.XX.XX.XX.XX..X.%
+M:%....X&X&X.X&X&X.X&X&X....%
+M:%.XXXXX.XX+XX.XX+XX.XXXXX.%
+M:%.X,,,X.X,,,X.X,,,X.X,,,X.%
+M:%.X,,,+.X,,,X.X,,,X.+,,,X.%
+M:%.X,,,X.X,,,X.X,,,X.X,,,X.%
+M:%.XXXXX.XXXXX+XXXXX.XXXXX.%
+M:%..X9#.X.#9X999X9#.X.#9X..%
+M:%..XXXX&XXXX989XXXX&XXXX..%
+M:%.....XXXX8#999#8XXXX.....%
+M:%........XXXXXXXXX........%
+M:%.........................%
+M:%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+N:Greater vault (Maw)
+T:VAULT:GREATER
+W:40:*:1
+M:            %%%%%%%%%%%%%%%%%%            
+M:         %%%%XXXXXXXXXXXXXXXX%%%%         
+M:      %%%%XXXX^^,^^^^^^^^,^^XXXX%%%%      
+M:   %%%%XXXX^^,,,X,,X++X,,X,,,^^XXXX%%%%   
+M:%%%%XXXX^^,,,X99XXXX..XXXX99X,,,^^XXXX%%%%
+M:%XXXX^^,,,X99XXXX@.X..X.@XXXX99X,,,^^XXXX%
+M:%X^^,,,X99XXXX&&X..X..X..X&&XXXX99X,,,^^X%
+M:%X,,X99XXXX&&X..X........X..X&&XXXX99X,,X%
+M:%X88XXXX&&X..X..............X..X&&XXXX88X%
+M:%XXXX..X..X....................X..X..XXXX%
+M:%X..X..X..........................X..X..X%
+M:%#......................................#%
+M:%#......................................#%
+M:%X..X..X..........................X..X..X%
+M:%XXXX..X..X....................X..X..XXXX%
+M:%X88XXXX&&X..X..............X..X&&XXXX88X%
+M:%X,,X99XXXX&&X..X........X..X&&XXXX99X,,X%
+M:%X^^,,,X99XXXX&&X..X..X..X&&XXXX99X,,,^^X%
+M:%XXXX^^,,,X99XXXX@.X..X.@XXXX99X,,,^^XXXX%
+M:%%%%XXXX^^,,,X99XXXX..XXXX99X,,,^^XXXX%%%%
+M:   %%%%XXXX^^,,,X,,X++X,,X,,,^^XXXX%%%%   
+M:      %%%%XXXX^^,^^^^^^^^,^^XXXX%%%%      
+M:         %%%%XXXXXXXXXXXXXXXX%%%%         
+M:            %%%%%%%%%%%%%%%%%%            
+
+N:Greater vault (Castle Gehenna)
+T:VAULT:GREATER
+W:60:*:1
+L:5:OBJ(*, DEPTH+7))
+L:U:MON(HI_DEMON, NO_GROUP | NO_SLEEP | DEPTH+10)
+L:~:DEEP_LAVA
+M:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+M:%#######.....###.....#...##...##...##..#...#.#..######%
+M:%#####...........~........#......~.....#.........#####%
+M:%###....~.~~....~~~.~..~....~...~~..~~...~..~..~...###%
+M:%....~~~~~~~~.~~~~~~~.~~~~.~~~~~~~~~~~~.~~~~~.~~~~...#%
+M:%..~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~..#%
+M:%#..~~~~~~~~XXXXXXXXXXXXXXXXXXXXXXXXX~~~~~~~~~~~~~~~..%
+M:%#..~~~~~XXXX..@...@...@...@...@....X~X~~X~~~~~~~~~..#%
+M:%##..~~~XX..+....@...@...@...@......XXXXXXXX~~~~~~~...%
+M:%#..~~~XX...XXXXXXXXXXXXXXXXXXXXXXX+X,,,,,,XXXX~~~~~.#%
+M:%..~~~~X@...X58585X*****X.........X.X,,99,,+..XX~~~..#%
+M:%#..~~XX....X95959X*999*X.U.~~~.U.X.X,9889,X...XX~~.##%
+M:%##.~~X@.X.U+58585X*989*+..~~~~~..+.X,,99,,X....X~~..#%
+M:%...~~X.....X95959X*989*+..~~~~~..+.X,,,,,,XU.X.X~~~..%
+M:%#..~~X.....X58585X*999*X.U.~~~.U.X.XXXXXXXX....X~~...%
+M:%..~~~X@.X.UXXXXXXX*****X.........X.X......XU.X.X~~..#%
+M:%#.~~~XX....X,,,,,XXXXXXXXXXXXXXXXX.X.@@@@.X....X~~~..%
+M:%...~~~X@...X,,8,,X~~X.@.@.+........+.@@@@.X...XX~~..#%
+M:%#..~~~XX...+,989,X~~X.....XXXXXXXXXX.@@@@.+..XX~~~.##%
+M:%....~~~XX@@X,,8,,X~~XXX+XXX~~X~~X~~X......XXXX~~~...#%
+M:%##..~~~~XXXX,,,,,X~~~.U.U...~~~~~~~XXXXXXXX~~~~~~~...%
+M:%#..~~~~~~~~XXXXXXX~...X.X..~~~~~~~~~~X~~X~~~~~~~~~..#%
+M:%#...~~~~~~~~~X~~X~~~~....~~~~~~~~~~~~~~~~~~~~~~~~..##%
+M:%##...~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~..###%
+M:%###...~~~~~~~~~~.~~~~~~~.~~~.~~~~~~~~~~~~~~~~~~~...##%
+M:%#####..~...~~~....~~~.~~......~..~~.~~...~~~..~..####%
+M:%#####...........#..........#....................#####%
+M:%#######......#####...#....##....##....#...###########%
+M:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+N:Greater vault (Tower of Heaven)
+T:VAULT:GREATER
+W:60:*:1
+L:T:TREE
+L:r:RUBBLE
+M:       %%%%%  %%%%%%%%%%  %%%%       
+M:     %%%TTT%%%%TTTTTTTT%%%%TT%%%%%%  
+M:   %%%%TTTTTT%TTTTTTTTTTTTTTTTTTTT%% 
+M: %%%TTTTTTTTTTTT##r##TTTTTTTTTTTTTT% 
+M: %rTT#TTTTTTTTr#T.@.##TTTrTTTTTT#TT%%
+M: %%TTTTT#####T##.@@@.r####r##TTTTTTT%
+M:  %%TTTTrTrT.TT##T@.##TTT..T##TTrTT#%
+M:  %TTT##TT..T&.T#TT#rT..&..TTr#TTTTT%
+M:%%%TT##Tr.......T.TT.....T..TT##TTTT%
+M:%TTT##TT....TTT.......TTTTr...TT#TT%%
+M:%TTr#TT...TTXXXXXXXXXXXXXTTT.T.T#TT% 
+M:%%TTTT.&.#TXX8989X9X9898XXTT.&TT#T%% 
+M:%%TT#TT.TTXX89898X9X89898XXTT..T#TT%%
+M:%TTTTT..TXX898989#9#989898XXrT.#TTTT%
+M:%TTT#.T.rTXX89898X9X89898XXTT.TT#TTT%
+M:%TTT#T.&.TTXX8989X9X9898XXT#.&.T##TT%
+M:%r#TrTT#...TXXXXXX#XXXXXXTTT..TT#Tr%%
+M:%TTT##TTT.T.TTTT.......TTTT.TTT##TTT%
+M:%%TTT#TTT..TrTT##.@.##...TT..rT#TTT%%
+M: %%TTT##rTT&..T##...##..T&..T##TTTT% 
+M:  %TTTT##TTT......@...TTTTTTT#TTTT%% 
+M:  %%TTTT##T##..##...##..rT###TTTTTT% 
+M:   %%TTTTTTTT.T##.@.##.T.TTTTTTTTT%% 
+M:    %%%TTTTT...T........TTrTTTTTT%%  
+M:      %%TTrTT...#.@.#....TTTTT%%%%   
+M:       %%%%%%%T.......T%%%%%%%%      
+M:             %%%%%%%%%%%             
+
+# End of New Vaults (clouded)
+#####################################
 
 N:Greater vault (Hall)
 T:VAULT:GREATER

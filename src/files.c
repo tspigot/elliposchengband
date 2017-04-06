@@ -2916,25 +2916,17 @@ void do_cmd_save_game(int is_autosave)
     {
         /* Disturb the player */
         disturb(1, 0);
-    }
 
-    /* Clear messages
-    msg_print(NULL);*/
-
-    /* Handle stuff */
     handle_stuff();
 
     /* Message */
     if (!is_autosave)
         prt("Saving game...", 0, 0);
 
-
-    /* Refresh */
     Term_fresh();
 
     /* The player is not dead */
     (void)strcpy(p_ptr->died_from, "(saved)");
-
 
     /* Forbid suspend */
     signals_ignore_tstp();
@@ -2946,12 +2938,10 @@ void do_cmd_save_game(int is_autosave)
             prt("Saving game... done.", 0, 0);
 
     }
-
     /* Save failed (oops) */
     else
     {
         prt("Saving game... failed!", 0, 0);
-
     }
 
     /* Allow suspend again */

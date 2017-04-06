@@ -988,7 +988,7 @@ static void _display_kills(monster_race *r_ptr, doc_ptr doc)
         }
         doc_newline(doc);
     }
-    else
+    else if (!spoiler_hack)
     {
         doc_printf(doc, "Kills   : <color:G>%d</color>\n", r_ptr->r_pkills);
     }
@@ -998,6 +998,7 @@ static void _display_kills(monster_race *r_ptr, doc_ptr doc)
         int xp = r_ptr->mexp * r_ptr->level / (plev + 2);
         char buf[10];
 
+        if (quickband) xp *= 2;
         big_num_display(xp, buf);
         doc_printf(doc, "Exp     : <color:G>%s</color> at CL%d\n", buf, plev);
     }
@@ -1062,7 +1063,6 @@ void mon_display_doc(monster_race *r_ptr, doc_ptr doc)
 
         /* Assume some "obvious" flags */
         if (r_ptr->flags1 & RF1_UNIQUE)  copy.flags1 |= RF1_UNIQUE;
-        if (r_ptr->flags1 & RF1_QUESTOR) copy.flags1 |= RF1_QUESTOR;
         if (r_ptr->flags1 & RF1_MALE)    copy.flags1 |= RF1_MALE;
         if (r_ptr->flags1 & RF1_FEMALE)  copy.flags1 |= RF1_FEMALE;
 

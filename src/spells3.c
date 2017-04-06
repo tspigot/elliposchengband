@@ -4019,9 +4019,8 @@ static s16b poly_r_idx(int r_idx)
 
     int i, r, lev1, lev2;
 
-    /* Hack -- Uniques/Questors never polymorph */
-    if ((r_ptr->flags1 & RF1_UNIQUE) ||
-        (r_ptr->flags1 & RF1_QUESTOR))
+    /* Hack -- Uniques never polymorph */
+    if (r_ptr->flags1 & RF1_UNIQUE)
         return (r_idx);
 
     /* Allowable range of "levels" for resulting monster */

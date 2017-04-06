@@ -3650,7 +3650,7 @@ void calc_bonuses(void)
     {
         p_ptr->auto_id = TRUE;
     }
-    else if (easy_id || p_ptr->lev >= 35)
+    else if (easy_id || p_ptr->lev >= 35 || (quickband && p_ptr->lev >= 20))
     {
         p_ptr->auto_pseudo_id = TRUE;
     }
