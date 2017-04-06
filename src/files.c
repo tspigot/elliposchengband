@@ -2916,7 +2916,7 @@ void do_cmd_save_game(int is_autosave)
     {
         /* Disturb the player */
         disturb(1, 0);
-
+    }
     handle_stuff();
 
     /* Message */

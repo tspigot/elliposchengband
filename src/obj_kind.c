@@ -218,18 +218,6 @@ bool object_is_rare(object_type *o_ptr)
         return TRUE;
         break;
 
-    case TV_SHOT:
-        if (o_ptr->sval == SV_MITHRIL_SHOT) return TRUE;
-        break;
-
-    case TV_ARROW:
-        if (o_ptr->sval == SV_SEEKER_ARROW) return TRUE;
-        break;
-
-    case TV_BOLT:
-        if (o_ptr->sval == SV_SEEKER_BOLT) return TRUE;
-        break;
-
     case TV_LITE:
         if (o_ptr->sval == SV_LITE_FEANOR) return TRUE;
         break;
