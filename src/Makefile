@@ -6,28 +6,27 @@ include Makefile.src
 INCLUDE = $(HDRS)
 OBJECTS = $(ANGFILES) $(CFILES) $(ZFILES)
 SRCS    = ${OBJECTS:.o=.c} ${MAINFILES:.o=.c}
-PROG    = poschengband$(PROG_SUFFIX)
+PROG    = $(PROGNAME)$(PROG_SUFFIX)
 # VERSION := $(shell ../scripts/version.sh)
+ifneq (${VERSION},)
+	CFLAGS += -DBUILD_ID=${VERSION}
+endif
 
-#Use this for debug code:
-CFLAGS += -DBUILD_ID=${VERSION} -I. -std=c99 -Wdeclaration-after-statement -O0 -g -fno-omit-frame-pointer
-
-#Use this for release code:
-#CFLAGS += -DBUILD_ID=${VERSION} -I. -std=c99 -Wdeclaration-after-statement -DNDEBUG -O2 -fno-omit-frame-pointer
+CFLAGS += -I. -std=c99 -O0 -Wdeclaration-after-statement -fno-omit-frame-pointer
 
 CLEAN = poschengband.o $(OBJECTS) win/poschengband.res
 DISTCLEAN = autoconf.h
 
 export CFLAGS LDFLAGS LIBS
 
-$(PROG): poschengband.o $(MAINFILES)
-	$(CC) -o $@ poschengband.o $(MAINFILES) $(LDFLAGS) $(LDADD) $(LIBS)
+$(PROG): $(PROGNAME).o $(MAINFILES)
+	$(CC) -o $@ $(PROGNAME).o $(MAINFILES) $(LDFLAGS) $(LDADD) $(LIBS)
 	@printf "%10s %-20s\n" LINK $@
 
-win/poschengband.res: win/poschengband.rc
+$(PROGNAME).res: $(PROGNAME).rc
 	$(RC) $< -O coff -o $@
 
-poschengband.o: $(OBJECTS)
+$(PROGNAME).o: $(OBJECTS)
 	$(LD) -nostdlib -Wl,-r -o $@ $(OBJECTS)
 	@printf "%10s %-20s\n" LINK $@
 

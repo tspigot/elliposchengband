@@ -250,8 +250,9 @@ static personality_ptr _get_lucky_personality(void)
     if (!init)
     {
         me.name = "Lucky";
-        me.desc = "A Lucky person has poor stats, equivalent to a Lazy person. "
-                    "Mysteriously, however, they can do all things well.";
+        me.desc = "A Lucky person has poor stats but, surprisingly, can do all "
+                    "things well. For some reason, good things seem to happen "
+                    "more often to lucky players.";
 
         me.stats[A_STR] = -2;
         me.stats[A_INT] = -2;
@@ -335,6 +336,7 @@ static void _munchkin_birth(void)
 
 static void _munchkin_calc_bonuses(void)
 {
+    p_ptr->auto_id = TRUE;
     res_add(RES_BLIND);
     res_add(RES_CONF);
     p_ptr->hold_life = TRUE;
@@ -382,6 +384,7 @@ static personality_ptr _get_munchkin_personality(void)
 
         me.life = 150;
         me.exp = 50;
+        me.flags = DEPRECATED;
 
         me.birth = _munchkin_birth;
         me.calc_bonuses = _munchkin_calc_bonuses;
@@ -540,11 +543,15 @@ static personality_ptr _get_pious_personality(void)
  ****************************************************************/
 static void _sexy_birth(void)
 {
-    object_type forge = {0};
-    object_prep(&forge, lookup_kind(TV_HAFTED, SV_WHIP));
-    if (p_ptr->pclass == CLASS_RUNE_KNIGHT)
-        rune_add(&forge, RUNE_FIRE, FALSE);
-    py_birth_obj(&forge);
+    if ( p_ptr->prace != RACE_MON_SWORD
+      && !demon_is_(DEMON_BALROG) )
+    {
+        object_type forge = {0};
+        object_prep(&forge, lookup_kind(TV_HAFTED, SV_WHIP));
+        if (p_ptr->pclass == CLASS_RUNE_KNIGHT)
+            rune_add(&forge, RUNE_ABSORPTION, FALSE);
+        py_birth_obj(&forge);
+    }
 }
 static void _sexy_calc_bonuses(void)
 {
@@ -562,7 +569,7 @@ static personality_ptr _get_sexy_personality(void)
     if (!init)
     {
         me.name = "Sexy";
-        me.desc = "Sexy rises all of your stats and skills, but your haughty "
+        me.desc = "Sexy increases all of your stats and skills, but your haughty "
                     "attitude will aggravate all monsters.";
 
         me.stats[A_STR] = 1;

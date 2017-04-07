@@ -9,6 +9,8 @@
  ****************************************************************/
 void rune_calc_bonuses(object_type *o_ptr)
 {
+    if (o_ptr->rune == RUNE_ABSORPTION)
+        p_ptr->magic_resistance += 15;
     if (o_ptr->rune == RUNE_UNDERSTANDING && object_is_helmet(o_ptr))
         p_ptr->auto_pseudo_id = TRUE;
     if (o_ptr->rune == RUNE_SHADOW)
@@ -44,7 +46,7 @@ void rune_calc_stats(object_type *o_ptr, s16b stats[MAX_STATS])
     }
     if (o_ptr->rune == RUNE_MIND)
     {
-        if (o_ptr->tval == TV_HELM)
+        if (object_is_helmet(o_ptr))
             stats[A_INT] += 2;
     }
     if (o_ptr->rune == RUNE_MIGHT)
@@ -60,52 +62,60 @@ cptr rune_desc(int which)
 {
     switch (which)
     {
+    case RUNE_ABSORPTION:
+        return "{Absorption}";
     case RUNE_PROTECTION:
-        return "<<Protection>>";
+        return "{Protection}";
     case RUNE_REGENERATION:
-        return "<<Regeneration>>";
+        return "{Regeneration}";
     case RUNE_FIRE:
-        return "<<Fire>>";
+        return "{Fire}";
     case RUNE_AIR:
-        return "<<Air>>";
+        return "{Air}";
     case RUNE_WATER:
-        return "<<Water>>";
+        return "{Water}";
     case RUNE_LIGHT:
-        return "<<Light>>";
+        return "{Light}";
     case RUNE_SHADOW:
-        return "<<Shadow>>";
+        return "{Shadow}";
     case RUNE_EARTH:
-        return "<<Earth>>";
+        return "{Earth}";
     case RUNE_UNDERSTANDING:
-        return "<<Understanding>>";
+        return "{Understanding}";
     case RUNE_ELEMENTAL_PROTECTION:
-        return "<<Preservation>>";
+        return "{Preservation}";
     case RUNE_HASTE:
-        return "<<Haste>>";
+        return "{Haste}";
     case RUNE_SEEING:
-        return "<<Seeing>>";
+        return "{Seeing}";
     case RUNE_SACRIFICE:
-        return "<<Sacrifice>>";
+        return "{Sacrifice}";
     case RUNE_LIFE:
-        return "<<Life>>";
+        return "{Life}";
     case RUNE_STABILITY:
-        return "<<Stability>>";
+        return "{Stability}";
     case RUNE_REFLECTION:
-        return "<<Reflection>>";
+        return "{Reflection}";
     case RUNE_DEATH:
-        return "<<Death>>";
+        return "{Death}";
     case RUNE_MIND:
-        return "<<Mind>>";
+        return "{Mind}";
     case RUNE_MIGHT:
-        return "<<Might>>";
+        return "{Might}";
     case RUNE_DESTRUCTION:
-        return "<<Destruction>>";
+        return "{Destruction}";
     case RUNE_GOOD_FORTUNE:
-        return "<<Luck>>";
+        return "{Luck}";
     case RUNE_IMMORTALITY:
-        return "<<Immortality>>";
+        return "{Immortality}";
     }
-    return "<<Unknown>>";
+    return "{Unknown}";
+}
+
+void _add_flag(obj_ptr obj, int which)
+{
+    add_flag(obj->flags, which);
+    add_flag(obj->known_flags, which);
 }
 
 bool rune_add(object_type *o_ptr, int which, bool prompt)    /* Birthing needs access to this ... */
@@ -121,6 +131,12 @@ bool rune_add(object_type *o_ptr, int which, bool prompt)    /* Birthing needs a
         return FALSE;
     }
 
+    if (object_is_(o_ptr, TV_SWORD, SV_RUNESWORD))
+    {
+        msg_print("Failed! Rune Swords already have runes, albeit ones you fail to comprehend.");
+        return FALSE;
+    }
+
     if (o_ptr->number > 1)
     {
         msg_print("Failed! You may only add a rune to a single object at a time.");
@@ -130,7 +146,7 @@ bool rune_add(object_type *o_ptr, int which, bool prompt)    /* Birthing needs a
     if (prompt)
     {
         if (!get_check(
-                format("Really add %^s to %^s?", 
+                format("Really add %^s to %s?",
                     rune_desc(which), o_name))) return FALSE;
     }
 
@@ -145,102 +161,102 @@ bool rune_add(object_type *o_ptr, int which, bool prompt)    /* Birthing needs a
     switch (which)
     {
     case RUNE_PROTECTION:
-        add_flag(o_ptr->flags, OF_IGNORE_ACID);
-        o_ptr->to_a += 5;
+        _add_flag(o_ptr, OF_IGNORE_ACID);
+        o_ptr->to_a += 2 + randint1(8);
         break;
 
     case RUNE_REGENERATION:
-        add_flag(o_ptr->flags, OF_REGEN);
+        _add_flag(o_ptr, OF_REGEN);
         break;
 
     case RUNE_FIRE:
         if (object_is_melee_weapon(o_ptr) || o_ptr->tval == TV_GLOVES)
-            add_flag(o_ptr->flags, OF_BRAND_FIRE);
+            _add_flag(o_ptr, OF_BRAND_FIRE);
         if (object_is_shield(o_ptr))
-            add_flag(o_ptr->flags, OF_RES_FIRE);
+            _add_flag(o_ptr, OF_RES_FIRE);
         if (object_is_body_armour(o_ptr))
         {
-            add_flag(o_ptr->flags, OF_RES_FIRE);
-            add_flag(o_ptr->flags, OF_AURA_FIRE);
+            _add_flag(o_ptr, OF_RES_FIRE);
+            _add_flag(o_ptr, OF_AURA_FIRE);
         }
         if (o_ptr->tval == TV_LITE || o_ptr->tval == TV_CLOAK)
-            add_flag(o_ptr->flags, OF_AURA_FIRE);
+            _add_flag(o_ptr, OF_AURA_FIRE);
         break;
 
     case RUNE_AIR:
         if (!object_is_melee_weapon(o_ptr))
-            add_flag(o_ptr->flags, OF_LEVITATION);
+            _add_flag(o_ptr, OF_LEVITATION);
         break;
 
     case RUNE_WATER:
-        add_flag(o_ptr->flags, OF_IGNORE_ACID);
+        _add_flag(o_ptr, OF_IGNORE_ACID);
         if (object_is_melee_weapon(o_ptr) || o_ptr->tval == TV_GLOVES)
-            add_flag(o_ptr->flags, OF_BRAND_ACID);
+            _add_flag(o_ptr, OF_BRAND_ACID);
         else
-            add_flag(o_ptr->flags, OF_RES_ACID);
+            _add_flag(o_ptr, OF_RES_ACID);
         break;
 
     case RUNE_LIGHT:
-        add_flag(o_ptr->flags, OF_RES_LITE);
+        _add_flag(o_ptr, OF_RES_LITE);
         break;
 
     case RUNE_SHADOW:
         if (o_ptr->tval != TV_CLOAK)
-            add_flag(o_ptr->flags, OF_RES_DARK);
+            _add_flag(o_ptr, OF_RES_DARK);
         break;
 
     case RUNE_EARTH:
         if (object_is_melee_weapon(o_ptr))
-            add_flag(o_ptr->flags, OF_VORPAL);
+            _add_flag(o_ptr, OF_VORPAL);
         else if (object_is_body_armour(o_ptr))
         {
-            add_flag(o_ptr->flags, OF_RES_SHARDS);
-            add_flag(o_ptr->flags, OF_AURA_SHARDS);
+            _add_flag(o_ptr, OF_RES_SHARDS);
+            _add_flag(o_ptr, OF_AURA_SHARDS);
         }
         else if (object_is_shield(o_ptr))
-            add_flag(o_ptr->flags, OF_RES_SHARDS);
+            _add_flag(o_ptr, OF_RES_SHARDS);
         else if (o_ptr->tval == TV_CLOAK)
-            add_flag(o_ptr->flags, OF_AURA_SHARDS);
+            _add_flag(o_ptr, OF_AURA_SHARDS);
         break;
 
     case RUNE_SEEING:
-        add_flag(o_ptr->flags, OF_RES_BLIND);
-        if (o_ptr->tval == TV_HELM)
-            add_flag(o_ptr->flags, OF_SEE_INVIS);
+        _add_flag(o_ptr, OF_RES_BLIND);
+        if (object_is_helmet(o_ptr))
+            _add_flag(o_ptr, OF_SEE_INVIS);
         break;
 
     case RUNE_LIFE:
-        add_flag(o_ptr->flags, OF_HOLD_LIFE);
+        _add_flag(o_ptr, OF_HOLD_LIFE);
         break;
 
     case RUNE_STABILITY:
-        add_flag(o_ptr->flags, OF_RES_NEXUS);
+        _add_flag(o_ptr, OF_RES_NEXUS);
         if (object_is_body_armour(o_ptr))
         {
-            add_flag(o_ptr->flags, OF_RES_CHAOS);
-            add_flag(o_ptr->flags, OF_RES_DISEN);
+            _add_flag(o_ptr, OF_RES_CHAOS);
+            _add_flag(o_ptr, OF_RES_DISEN);
         }
         break;
     
     case RUNE_REFLECTION:
-        add_flag(o_ptr->flags, OF_REFLECT);
+        _add_flag(o_ptr, OF_REFLECT);
         break;
 
     case RUNE_DEATH:
         if (object_is_melee_weapon(o_ptr))
-            add_flag(o_ptr->flags, OF_BRAND_VAMP);
+            _add_flag(o_ptr, OF_BRAND_VAMP);
         else
         {
-            add_flag(o_ptr->flags, OF_RES_NETHER);
+            _add_flag(o_ptr, OF_RES_NETHER);
             if (object_is_body_armour(o_ptr))
-                add_flag(o_ptr->flags, OF_RES_POIS);
+                _add_flag(o_ptr, OF_RES_POIS);
         }
         break;
 
     case RUNE_MIND:
-        add_flag(o_ptr->flags, OF_TELEPATHY);
-        if (o_ptr->tval == TV_HELM)
-            add_flag(o_ptr->flags, OF_SUST_INT);
+        _add_flag(o_ptr, OF_TELEPATHY);
+        if (object_is_helmet(o_ptr))
+            _add_flag(o_ptr, OF_SUST_INT);
         break;
 
     case RUNE_MIGHT:
@@ -248,9 +264,9 @@ bool rune_add(object_type *o_ptr, int which, bool prompt)    /* Birthing needs a
         o_ptr->to_d += randint1(5);
         if (object_is_body_armour(o_ptr))
         {
-            add_flag(o_ptr->flags, OF_SUST_STR);
-            add_flag(o_ptr->flags, OF_SUST_DEX);
-            add_flag(o_ptr->flags, OF_SUST_CON);
+            _add_flag(o_ptr, OF_SUST_STR);
+            _add_flag(o_ptr, OF_SUST_DEX);
+            _add_flag(o_ptr, OF_SUST_CON);
         }
         break;
 
@@ -265,25 +281,25 @@ bool rune_add(object_type *o_ptr, int which, bool prompt)    /* Birthing needs a
         break;
 
     case RUNE_IMMORTALITY:
-        add_flag(o_ptr->flags, OF_RES_TIME);
+        _add_flag(o_ptr, OF_RES_TIME);
         if (object_is_body_armour(o_ptr))
         {
-            add_flag(o_ptr->flags, OF_SUST_STR);
-            add_flag(o_ptr->flags, OF_SUST_INT);
-            add_flag(o_ptr->flags, OF_SUST_WIS);
-            add_flag(o_ptr->flags, OF_SUST_DEX);
-            add_flag(o_ptr->flags, OF_SUST_CON);
-            add_flag(o_ptr->flags, OF_SUST_CHR);
-            add_flag(o_ptr->flags, OF_HOLD_LIFE);
+            _add_flag(o_ptr, OF_SUST_STR);
+            _add_flag(o_ptr, OF_SUST_INT);
+            _add_flag(o_ptr, OF_SUST_WIS);
+            _add_flag(o_ptr, OF_SUST_DEX);
+            _add_flag(o_ptr, OF_SUST_CON);
+            _add_flag(o_ptr, OF_SUST_CHR);
+            _add_flag(o_ptr, OF_HOLD_LIFE);
         }
         break;
 
     case RUNE_ELEMENTAL_PROTECTION:
     case RUNE_GOOD_FORTUNE:
-        add_flag(o_ptr->flags, OF_IGNORE_ACID);
-        add_flag(o_ptr->flags, OF_IGNORE_FIRE);
-        add_flag(o_ptr->flags, OF_IGNORE_COLD);
-        add_flag(o_ptr->flags, OF_IGNORE_ELEC);
+        _add_flag(o_ptr, OF_IGNORE_ACID);
+        _add_flag(o_ptr, OF_IGNORE_FIRE);
+        _add_flag(o_ptr, OF_IGNORE_COLD);
+        _add_flag(o_ptr, OF_IGNORE_ELEC);
         break;
     }
 
@@ -297,38 +313,72 @@ bool rune_add(object_type *o_ptr, int which, bool prompt)    /* Birthing needs a
 /****************************************************************
  * Private Spells and Helpers
  ****************************************************************/
-
-typedef bool (*object_pred)(object_type *o_ptr);
-
-static object_type *_rune_object_prompt(object_pred pred)
+static object_type *_rune_object_prompt(obj_p filter)
 {
-    object_type * result = NULL;
-    object_pred   old = item_tester_hook;
-    int           item;
+    obj_prompt_t prompt = {0};
 
-    item_tester_hook = pred;
+    prompt.prompt = "Enchant which item?";
+    prompt.error = "You have nothing to enchant.";
+    prompt.filter = filter;
+    prompt.where[0] = INV_PACK;
+    prompt.where[1] = INV_EQUIP;
+    prompt.where[2] = INV_FLOOR;
 
-    if (get_item(&item, 
-                 "Enchant which item?", 
-                 "You have nothing to enchant.", 
-                 (USE_EQUIP | USE_INVEN | USE_FLOOR))) 
-    {
-        if (item >= 0) /* Pack */
-            result = &inventory[item];
-        else /* Floor */
-            result = &o_list[0 - item];
-    }
-
-    item_tester_hook = old;
-    return result;
+    obj_prompt(&prompt);
+    return prompt.obj;
 }
 
 static void _rune_default_spell(int cmd, variant *res)
 {
     switch (cmd)
     {
+    case SPELL_COST_EXTRA:
+        var_set_int(res, MAX(25, p_ptr->msp));
+        break;
+    /*case SPELL_COLOR:
+        var_set_int(res, TERM_L_BLUE);
+        break; */
     default:
         default_spell(cmd, res);
+        break;
+    }
+}
+
+static bool _rune_of_absorption_pred(object_type *o_ptr)
+{
+    if ( object_is_body_armour(o_ptr)
+      || object_is_melee_weapon(o_ptr)
+      || object_is_shield(o_ptr) )
+    {
+        return TRUE;
+    }
+    return FALSE;
+}
+static void _rune_of_absorption_spell(int cmd, variant *res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Rune of Absorption");
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "Places a Rune of Absorption on chosen melee weapon, body armor or shield. This rune grants a special magical defense that absorbs damage from all monster spells restoring your mana in the process.");
+        break;
+    case SPELL_CAST:
+    {
+        object_type *o_ptr = _rune_object_prompt(_rune_of_absorption_pred);
+        var_set_bool(res, FALSE);
+
+        if (o_ptr)
+            var_set_bool(res, rune_add(o_ptr, RUNE_ABSORPTION, TRUE));
+
+        break;
+    }
+    case SPELL_COST_EXTRA:
+        var_set_int(res, 0); /* was MAX(1, p_ptr->msp * 3 / 10)*/
+        break;
+    default:
+        _rune_default_spell(cmd, res);
         break;
     }
 }
@@ -359,6 +409,9 @@ static void _rune_of_protection_spell(int cmd, variant *res)
         
         break;
     }
+    case SPELL_COST_EXTRA:
+        var_set_int(res, MAX(5, p_ptr->msp * 5 / 10));
+        break;
     default:
         _rune_default_spell(cmd, res);
         break;
@@ -394,6 +447,9 @@ static void _rune_of_regeneration_spell(int cmd, variant *res)
         
         break;
     }
+    case SPELL_COST_EXTRA:
+        var_set_int(res, MAX(10, p_ptr->msp * 5 / 10));
+        break;
     default:
         _rune_default_spell(cmd, res);
         break;
@@ -515,7 +571,7 @@ static void _rune_of_water_spell(int cmd, variant *res)
 
 static bool _rune_of_light_pred(object_type *o_ptr)
 {
-    if ( o_ptr->tval == TV_HELM
+    if ( object_is_helmet(o_ptr)
       || o_ptr->tval == TV_LITE )
     {
         return TRUE;
@@ -552,7 +608,7 @@ static bool _rune_of_shadow_pred(object_type *o_ptr)
 {
     if ( object_is_shield(o_ptr)
       || object_is_body_armour(o_ptr)
-      || o_ptr->tval == TV_HELM
+      || object_is_helmet(o_ptr)
       || o_ptr->tval == TV_CLOAK )
     {
         return TRUE;
@@ -624,7 +680,7 @@ static void _rune_of_earth_spell(int cmd, variant *res)
 
 static bool _rune_of_understanding_pred(object_type *o_ptr)
 {
-    if ( o_ptr->tval == TV_HELM
+    if ( object_is_helmet(o_ptr)
       || o_ptr->tval == TV_LITE )
     {
         return TRUE;
@@ -721,7 +777,7 @@ static void _rune_of_haste_spell(int cmd, variant *res)
 
 static bool _rune_of_seeing_pred(object_type *o_ptr)
 {
-    if ( o_ptr->tval == TV_HELM
+    if ( object_is_helmet(o_ptr)
       || o_ptr->tval == TV_LITE )
     {
         return TRUE;
@@ -819,7 +875,7 @@ static void _rune_of_life_spell(int cmd, variant *res)
 static bool _rune_of_stability_pred(object_type *o_ptr)
 {
     if ( object_is_body_armour(o_ptr)
-      || o_ptr->tval == TV_HELM
+      || object_is_helmet(o_ptr)
       || o_ptr->tval == TV_CLOAK
       || o_ptr->tval == TV_BOOTS )
     {
@@ -884,7 +940,7 @@ static bool _rune_of_death_pred(object_type *o_ptr)
     if ( object_is_melee_weapon(o_ptr)
       || object_is_shield(o_ptr)
       || object_is_body_armour(o_ptr)
-      || o_ptr->tval == TV_HELM )
+      || object_is_helmet(o_ptr) )
     {
         return TRUE;
     }
@@ -918,7 +974,7 @@ static void _rune_of_death_spell(int cmd, variant *res)
 
 static bool _rune_of_mind_pred(object_type *o_ptr)
 {
-    if ( o_ptr->tval == TV_HELM 
+    if ( object_is_helmet(o_ptr) 
       || o_ptr->tval == TV_LITE ) 
     {
         return TRUE;
@@ -954,7 +1010,7 @@ static void _rune_of_mind_spell(int cmd, variant *res)
 static bool _rune_of_might_pred(object_type *o_ptr)
 {
     if ( object_is_body_armour(o_ptr) 
-      || o_ptr->tval == TV_HELM ) 
+      || object_is_helmet(o_ptr) ) 
     {
         return TRUE;
     }
@@ -1052,7 +1108,7 @@ static bool _rune_of_immortality_pred(object_type *o_ptr)
 {
     if ( object_is_shield(o_ptr) 
       || object_is_body_armour(o_ptr)
-      || o_ptr->tval == TV_HELM 
+      || object_is_helmet(o_ptr) 
       || o_ptr->tval == TV_CLOAK )
     {
         return TRUE;
@@ -1088,12 +1144,28 @@ static void _rune_of_immortality_spell(int cmd, variant *res)
 /****************************************************************
  * Spell Table and Exports
  ****************************************************************/
-static spell_info _spells[] =
-{
-        {  1,   0, 0, _rune_of_protection_spell },
-        {  4,   0, 0, _rune_of_regeneration_spell },
-        {  7,   0, 0, _rune_of_fire_spell },
-        { 10,   0, 0, _rune_of_air_spell },
+ #define _MAX_SPELLS_PER_GROUP    25
+ #define _MAX_SPELL_GROUPS       4
+
+typedef struct {
+    cptr name;
+    cptr help;
+    int color;
+    spell_info spells[_MAX_SPELLS_PER_GROUP];    /* There is always a sentinel at the end */
+} _spell_group, *_spell_group_ptr;
+
+static _spell_group _spell_groups[_MAX_SPELL_GROUPS] = {
+    { "Runes of Creation",
+      "Augment your equipment by attaching runes of various powers. Also, you may create "
+      "certain stand alone runes that grant powers by virtue of being present in your "
+      "inventory. Be sure to always keep Absorption handy, for it is your only means "
+      "of regaining spell points!",
+      TERM_L_BLUE,
+      { {  1,   0, 0, _rune_of_absorption_spell },
+        {  5,   0, 0, _rune_of_protection_spell },
+        {  7,   0, 0, _rune_of_regeneration_spell },
+        {  9,   0, 0, _rune_of_fire_spell },
+        { 11,   0, 0, _rune_of_air_spell },
         { 13,   0, 0, _rune_of_water_spell },
         { 15,   0, 0, _rune_of_light_spell },
         { 17,   0, 0, _rune_of_shadow_spell },
@@ -1112,16 +1184,140 @@ static spell_info _spells[] =
         { 41,   0, 0, _rune_of_destruction_spell },
         { 43,   0, 0, _rune_of_good_fortune_spell },
         { 45,   0, 0, _rune_of_immortality_spell },
-        { -1,  -1,-1, NULL },
+        { -1,   0,  0, NULL },
+      }
+    },
+    { "Runes of the Novice",
+      "Minor spells and powers, available to the weakest of Rune-Knights. "
+      "While hardly awe-inspiring, these powers grant detection and weak "
+      "utility that are designed to assist the novice in their quest for deeper "
+      "understanding.",
+      TERM_L_GREEN,
+      { {  1,   1, 20, detect_monsters_spell },
+        {  1,   2, 25, phase_door_spell },
+        {  3,   3, 25, detect_doors_stairs_traps_spell },
+        {  5,   5, 35, light_area_spell },
+        {  7,  10, 75, resist_poison_spell },
+        {  9,   7, 75, magic_mapping_spell },
+        { 11,   9, 35, summon_manes_spell },
+        { 12,  12, 40, orb_of_entropy_spell },
+        { 15,   9, 35, teleport_spell },
+        { -1,   0,  0, NULL },
+      }
+    },
+    { "Runes of the Initiate",
+      "Stronger rune powers, available to the experienced Rune-Knight. "
+      "These powers offer great utility to assist you on your journey "
+      "of knowledge.",
+      TERM_UMBER,
+      { { 16,  16, 45, remove_curse_I_spell },
+        { 18,  12, 60, teleport_other_spell },
+        { 20,  20, 85, satisfy_hunger_spell },
+        { 21,  20, 80, explosive_rune_spell },
+        { 22,  16, 60, stone_to_mud_spell },
+        { 25,  25, 85, disintegrate_spell },
+        { 28,  20, 70, resistance_spell },
+        { 29,  23, 60, protection_from_evil_spell },
+        { 30,  25, 75, battle_frenzy_spell },
+        { -1,   0,  0, NULL },
+      }
+    },
+    { "Runes of the Master",
+      "Mighty powers indeed. Use them wisely, for the forces of evil have "
+      "grown strong and don't take well to rivals in their quest for domination.",
+      TERM_RED,
+      { { 33,  30, 75, identify_fully_spell },
+        { 35,  33, 45, dimension_door_spell },
+        { 36,  70, 75, glyph_of_warding_spell },
+        { 38,  65, 85, mana_branding_spell },
+        { 40,  40, 80, eye_for_an_eye_spell },
+        { 42, 100, 80, clairvoyance_spell },
+        { 43, 100, 45, living_trump_spell },
+        { 45,  58, 85, mana_storm_II_spell },
+        { 47, 100, 90, wraithform_spell },
+        { 49,  80, 85, polymorph_demonlord_spell },
+        { -1,   0,  0, NULL },
+      }
+    },
 };
+
+static int _get_spells_imp(spell_info* spells, int max, _spell_group *spell_group)
+{
+    int i;
+    int ct = 0;
+    int stat_idx = p_ptr->stat_ind[A_INT];
+    
+    for (i = 0; ; i++)
+    {
+        spell_info *base = &spell_group->spells[i];
+        if (base->level < 0) break;
+        if (ct >= max) break;
+        if (base->level <= p_ptr->lev)
+        {
+            spell_info* current = &spells[ct];
+            current->fn = base->fn;
+            current->level = base->level;
+            current->cost = base->cost;
+
+            current->fail = calculate_fail_rate(base->level, base->fail, stat_idx);            
+            ct++;
+        }
+    }
+    return ct;
+}
+
+static void _character_dump(doc_ptr doc)
+{
+    int i;
+    doc_printf(doc, "<topic:Spells>==================================== <color:keypress>S</color>pells ===================================\n\n");
+    for (i = 0; i < _MAX_SPELL_GROUPS; i++)
+    {
+        _spell_group_ptr group = &_spell_groups[i];
+        spell_info       spells[_MAX_SPELLS_PER_GROUP];
+        int              ct = _get_spells_imp(spells, _MAX_SPELLS_PER_GROUP, group); 
+
+        if (!ct) continue;
+        doc_printf(doc, "<color:%c>%s</color>\n", attr_to_attr_char(group->color), group->name);
+        py_display_spells_aux(doc, spells, ct);
+    }
+}
+
+static void _spell_menu_fn(int cmd, int which, vptr cookie, variant *res)
+{
+    switch (cmd)
+    {
+    case MENU_TEXT:
+        var_set_string(res, _spell_groups[which].name);
+        break;
+    case MENU_HELP:
+        var_set_string(res, _spell_groups[which].help);
+        break;
+    case MENU_COLOR:
+        var_set_int(res, _spell_groups[which].color);
+        break;
+    default:
+        default_menu(cmd, which, cookie, res);
+    }
+}
 
 static int _get_spells(spell_info* spells, int max)
 {
-    return get_spells_aux(spells, max, _spells);
+    int idx = -1;
+    int ct = 0;
+    menu_t menu = { "Use which group of spells?", "Browse which group of spells?", NULL,
+                    _spell_menu_fn, _spell_groups, _MAX_SPELL_GROUPS};
+
+    idx = menu_choose(&menu);
+    if (idx < 0) return 0;
+    ct = _get_spells_imp(spells, max, &_spell_groups[idx]);
+    if (ct == 0)
+        msg_print("You don't know any of those spells yet!");
+    return ct;
 }
 
 static void _calc_bonuses(void)
 {
+    p_ptr->spell_cap += 7;
 }
 
 static caster_info * _caster_info(void)
@@ -1130,9 +1326,11 @@ static caster_info * _caster_info(void)
     static bool init = FALSE;
     if (!init)
     {
-        me.magic_desc = "rune";
-        me.options = CASTER_USE_HP;
-        me.which_stat = A_STR;
+        me.magic_desc = "spell";
+        me.which_stat = A_INT;
+        me.encumbrance.max_wgt = 450;
+        me.encumbrance.weapon_pct = 20;
+        me.encumbrance.enc_wgt = 1200;
         init = TRUE;
     }
     return &me;
@@ -1149,6 +1347,35 @@ static void _birth(void)
     py_birth_obj_aux(TV_POTION, SV_POTION_SPEED, 1);
 }
 
+static bool _destroy_object(obj_ptr obj)
+{
+    if (obj->rune == RUNE_SACRIFICE)
+    {
+        bool is_equipped = obj->loc.where == INV_EQUIP;
+        int add_hp = is_equipped ? p_ptr->mhp : p_ptr->mhp/3;
+        int add_sp = is_equipped ? p_ptr->msp : p_ptr->msp/3;
+
+        msg_print("You feel a surge of wondrous power enter your body.");
+
+        p_ptr->chp = MIN(p_ptr->mhp, p_ptr->chp + add_hp);
+        p_ptr->chp_frac = 0;
+        p_ptr->csp = MIN(p_ptr->msp, p_ptr->csp + add_sp);
+        p_ptr->csp_frac = 0;
+
+        p_ptr->redraw |= (PR_MANA);
+        p_ptr->window |= (PW_SPELL);
+        p_ptr->redraw |= (PR_HP);
+
+        if (is_equipped)
+        {
+            blast_object(obj);
+            obj->curse_flags = OFC_HEAVY_CURSE;
+        }
+        return TRUE;
+    }
+    return FALSE;
+}
+
 class_t *rune_knight_get_class(void)
 {
     static class_t me = {0};
@@ -1163,10 +1390,14 @@ class_t *rune_knight_get_class(void)
         me.desc = "The Rune Knight is a mythical warrior-mage who is dedicated to the power "
                   "of ancient Runes that hold immense power. By affixing these Runes to his "
                   "equipment, the Rune Knight can become an avatar of destruction, or an "
-                  "invulnerable bastion.";
+                  "invulnerable bastion. Unlike the Warrior-Mage and all other casters, the "
+                  "Rune Knight's mana does not regenerate on its own; rather, the Rune Knight "
+                  "must siphon mana from magical attacks directed at him. The Rune Knight has "
+                  "a fixed (though very large) selection of spells that he can use his mana on, "
+                  "in addition to his unique Rune spells.";
 
         me.stats[A_STR] = 2;
-        me.stats[A_INT] = 0;
+        me.stats[A_INT] = 2;
         me.stats[A_WIS] = 0;
         me.stats[A_DEX] = 1;
         me.stats[A_CON] = 0;
@@ -1183,6 +1414,8 @@ class_t *rune_knight_get_class(void)
         me.calc_bonuses = _calc_bonuses;
         me.caster_info = _caster_info;
         me.get_spells = _get_spells;
+        me.destroy_object = _destroy_object;
+        me.character_dump = _character_dump;
         init = TRUE;
     }
 

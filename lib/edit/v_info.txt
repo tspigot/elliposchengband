@@ -60,7 +60,8 @@
 # character in length. It may override built-in letters if you like.
 # Directives guide the feature, monster, trap and object options for the
 # square in question. You can specify these directives in any order, separating
-# multiple directives with a :.
+# multiple directives with a :. Note: Don't use " as a letter. The parser
+# will think you are quoting a string as in MON("fang, farmer maggot's dog", CLONE).
 #
 # Each directive is of the form NAME[(option_list)] where NAME is one of
 # MON, TRAP, OBJ, EGO, ART, or a feature name from f_info.txt (e.g. FLOOR
@@ -72,8 +73,9 @@
 #       [1] Which monster? Use * for completely random selection. Or
 #           use the display character (from r_info.txt) to limit the
 #           kind of monster (e.g. o for orc or Z for zephyr hound). Or
-#           enter the numeric sequence identifier of the exact monster
-#           you want (again, from r_info.txt) like 11 for a Raving Lunatic.
+#           enter the name from r_info.txt (like MON(raving lunatic)).
+#           You can try a partial match (like MON(lunatic)) but that might
+#           not always work.
 #           Finally, you can specify one of the various "Summoning Options"
 #           to guide monster selection. Look at the code for details, but here
 #           are some examples, chosen randomly:
@@ -92,8 +94,6 @@
 #           either a monster or the player can summon them. This is a numeric code passed to
 #           the summon_specific() api. So if the codes seem redundant or useless, just ignore 
 #           them. They weren't created for this file).
-#           (TODO: Allow partial text searches thru r_info, such as MON(lunatic) for our
-#           raving lunatic example rather than forcing MON(11)).
 #       [2] Which Options? The most common option is to generate out of depth monsters,
 #           but there are others as well. Separate multiple options with the | character.
 #              - NO_GROUP: Suppress normal group code for certain monsters
@@ -107,11 +107,11 @@
 #       [2] MON(*, DEPTH+40): Any monster, up to 40 levels OoD
 #       [3] MON(ORC, NO_GROUP | HASTE): A hasted orc loner
 #       [4] MON(o, NO_GROUP | HASTE): A hasted orc loner (The summon type options are sometimes redundant)
-#       [5] MON(442): A Black Knight
+#       [5] MON(black knight): A Black Knight
 #       [6] MON(*): Anything at all, subject to normal dungeon type or wilderness terrain restrictions.
 #
 #  * OBJ: The OBJ directive determines the object for this square. Like the MON directive, the
-#         syntax is OBJ(<which> [,<options>]). Note that you may augment an OBJ directive with
+#         syntax is OBJ(<type> [,<subtype>] [,<options>]). Note that you may augment an OBJ directive with
 #         an EGO or even ART directive if you wish to generate ego items or artifacts. Both EGO
 #         and ART are described separately below.
 #       [1] Which Object? You may use * for a randomly chosen object type if you just don't care.
@@ -127,24 +127,27 @@
 #              - WEAPON: Any melee weapon (there are 4 tvals for weapons).
 #              - BOW_AMMO: Any type of bow or ammo.
 #              - MISC: Junk, statues, etc. Basically, anything not caught by one of the preceding special categories.
-#           Finally, you can specify a k_idx directly (from k_info.txt), such as OBJ(242) for a potion of
-#           healing.
+#           Never use a k_idx directly. Instead, use OBJ(POTION, healing) for a potion of healing,
+#           or OBJ(SWORD, long sword, DEPTH+20) for an out of depth long sword. k_idx will be
+#           removed at some point ...
 #       [2] Which Options? Easy. There is only a single option at the moment: DEPTH+NN which says to generate this
 #           object up to NN levels out of depth.
 #     Sample OBJ directives are:
 #       [1] OBJ(*): Any object
 #       [2] OBJ(*, DEPTH+7): Any object, up to 7 levels OoD
-#       [3] OBJ(242): Potion of Healing
+#       [3] OBJ(POTION, healing): Potion of Healing
 #       [4] OBJ(POTION): Any potion
 #
 #  * EGO: The EGO directive augments the OBJ directive, specifying that an excellent object should be
 #         generated. The syntax is EGO(<which>), where which is either * for a random type (appropriate
-#         for the object in question or the numeric code from e_info.txt.
+#         for the object in question or the full name from e_info.txt. You may use the index for
+#         the ego type as well, since, at the moment, ego names are often duplicated. In the future
+#         I might be able to fix this based on context, but for now, be careful.
 #     Sample EGO directives are (Note you generally want an OBJ directive as well):
-#       [1] OBJ(RING):EGO(306): Ring of Speed
+#       [1] OBJ(RING):EGO(209): Ring of Speed (Note: Boots and Rings both use 'of Speed')
 #       [2] OBJ(RING):EGO(*): Any ego ring
 #       [3] OBJ(CLOAK, DEPTH+20):EGO(*): Any ego cloak generated up to 20 levels OoD
-#           (TODO: Allow partial text searches thru e_info, such as OBJ(RING):EGO(Speed) for [1]).
+#       [4] OBJ(SWORD, diamond edge):EGO(pattern)
 #
 #  * ART: The ART directive augments the OBJ directive, specifying that a special object should be
 #         generated. The syntax is ART(<which>) where which is either * for a rand-art or the 
@@ -186,7 +189,7 @@
 #        A friendly human that won't come as part of a monster group.
 #    [5] L:4:TEMPLE(GLOW)
 #        A lit entrance to a temple shop.
-#    [6] L:p:DIRT:MON(1026):OBJ(BOOK, DEPTH+50)
+#    [6] L:p:DIRT:MON(old sorcerer):OBJ(BOOK, DEPTH+50)
 #        An Old Sorcerer standing on a dirt tile with an out of depth good spellbook underfoot.
 #
 # M:<map_row>
@@ -461,7 +464,7 @@ M: ###########
 N:Logrus Master
 T:WILD:GRASS
 W:20:*:16
-L:p:DIRT:MON(498)
+L:p:DIRT:MON(logrus master)
 L:.:DIRT
 M:############
 M:#..........#
@@ -489,7 +492,7 @@ M:    X
 N:Murder
 T:WILD:GRASS
 W:10:*:16
-L:M:MON(61)
+L:M:MON(^crow$)
 M:  M  
 M: MMM 
 M:MMMMM
@@ -571,7 +574,7 @@ L:m:MOUNTAIN
 #1/5 chance of silent watchers, and a line selecting
 #warriors (p or not).
 L:*:FLOOR(GLOW):MON(DEMON_SUMMONER, NO_GROUP | DEPTH+25):OBJ(LITE, DEPTH+10):EGO(*)
-L:`:FLOOR(GLOW):MON(397, NO_GROUP):OBJ(LITE, DEPTH+10):EGO(*)
+L:`:FLOOR(GLOW):MON(silent watcher, NO_GROUP):OBJ(LITE, DEPTH+10):EGO(*)
 L:p:FLOOR(ROOM):MON(p, NO_UNIQUE | DEPTH+15)
 M: vvvv      mmmm 
 M:vvv__________mmm
@@ -675,7 +678,7 @@ T:WILD:LAVA
 W:40:*:16
 L:~:DEEP_LAVA
 L:U:DEEP_LAVA:MON(BALROG, NO_SLEEP | DEPTH+40)
-L:p:DIRT:MON(1008, NO_SLEEP)
+L:p:DIRT:MON(demonologist, NO_SLEEP)
 L:.:SHALLOW_LAVA
 M:.......
 M:..~~~..
@@ -688,7 +691,7 @@ M:...p...
 N:How Vile!
 T:WILD:LAVA
 W:20:*:2
-L:u:MON(357)
+L:u:MON(arch-vile)
 M:u   u
 M:  u  
 M:u   u
@@ -696,7 +699,7 @@ M:u   u
 N:Hounds of Hell
 T:WILD:LAVA
 W:40:*:32
-L:C:MON(829, NO_SLEEP)
+L:C:MON(hell hound of julian, NO_SLEEP)
 M:C
 
 #######################
@@ -824,7 +827,7 @@ M:#########
 N:Lord of Chaos
 T:WILD:MOUNTAIN
 W:40:*:16
-L:p:DIRT:MON(737)
+L:p:DIRT:MON(lord of chaos)
 L:.:DIRT
 M:############    
 M:#..........#    
@@ -838,7 +841,7 @@ N:Sorcerer's Tower II
 T:WILD:MOUNTAIN
 W:50:*:32
 L:.:DIRT
-L:p:DIRT:MON(1026):OBJ(BOOK, DEPTH+50)
+L:p:DIRT:MON(old sorcerer):OBJ(BOOK, DEPTH+50)
 M:.################
 M:.+..............#
 M:.##############.#
@@ -925,7 +928,7 @@ N:The Enchantress
 T:AMBUSH:MOUNTAIN:FORMATION
 W:30:*:8
 L:0:TREE:MON(DRAGON)
-L:p:TREE:MON(636, NO_SLEEP)
+L:p:TREE:MON(^enchantress$, NO_SLEEP)
 L:.:TREE
 M:741.....
 M:8p0..@..
@@ -1011,8 +1014,8 @@ M:   8$  4  $8
 N:Roasting Hobbits
 T:WILD:TREES:NIGHT
 W:15:*:4
-L:T:MON(297, NO_SLEEP)
-L:h:MON(74, FRIENDLY)
+L:T:MON(forest troll, NO_SLEEP)
+L:h:MON(scruffy looking hobbit, FRIENDLY)
 L:~:SHALLOW_LAVA
 L:$:OBJ(*)
 M:            T
@@ -1024,7 +1027,7 @@ M:T
 N:Ewok Village
 T:WILD:TREES
 W:10:*:4
-L:h:TREE:MON(92)
+L:h:TREE:MON(^ewok$)
 L:T:TREE
 L:~:GRASS
 M:TTh~hTTTh
@@ -1037,8 +1040,8 @@ N:Druidic Circle
 T:WILD:TREES
 W:10:*:32
 L:T:TREE
-L:M:GRASS:MON(329, NO_SLEEP)
-L:p:GRASS:MON(241)
+L:M:GRASS:MON(^huorn$, NO_SLEEP)
+L:p:GRASS:MON(^druid$)
 L:~:GRASS
 M:       TTT       
 M:     TTTTTTT     
@@ -1059,7 +1062,7 @@ M:       TTT
 N:Treeherder
 T:WILD:TREES
 W:30:*:200
-L:T:MON(708, FRIENDLY | NO_SLEEP)
+L:T:MON(^ent$, FRIENDLY | NO_SLEEP)
 M:T
 
 #Fishing Hole
@@ -1708,7 +1711,7 @@ M:%%%%%%%%%%%%%%%%%%%%%
 N:Object Vault (Potions?)
 T:ROOM:NORMAL
 W:20:50:32
-L:$:MON(310):OBJ(POTION)
+L:$:MON(potion mimic):OBJ(POTION)
 L:M:MON(*, DEPTH+10)
 M:%%%%%%%%%%%%%%%%%%%%%%%%%
 M:%.......................%
@@ -1725,7 +1728,7 @@ M:%%%%%%%%%%%%%%%%%%%%%%%%%
 N:Object Vault (Swords?)
 T:ROOM:NORMAL
 W:10:30:32
-L:$:MON(107):OBJ(SWORD)
+L:$:MON(death sword):OBJ(SWORD)
 L:M:MON(*, DEPTH+10)
 M:%%%%%%%%%%%%%%%%%%%%%%%%%
 M:%.......................%
@@ -1742,7 +1745,7 @@ M:%%%%%%%%%%%%%%%%%%%%%%%%%
 N:Object Vault (Scrolls?)
 T:ROOM:NORMAL
 W:20:50:32
-L:$:MON(352):OBJ(SCROLL)
+L:$:MON(scroll mimic):OBJ(SCROLL)
 L:M:MON(*, DEPTH+10)
 M:%%%%%%%%%%%%%%%%%%%%%%%%%
 M:%.......................%
@@ -1759,7 +1762,7 @@ M:%%%%%%%%%%%%%%%%%%%%%%%%%
 N:Library?
 T:ROOM:NORMAL
 W:40:*:64
-L:$:MON(557):OBJ(BOOK)
+L:$:MON(raal's):OBJ(BOOK)
 L:M:MON(*, DEPTH+20)
 M:%%%%%%%%%%%%%%%%%%%%%%%%%
 M:%.......................%
@@ -1776,7 +1779,7 @@ M:%%%%%%%%%%%%%%%%%%%%%%%%%
 N:Pantry?
 T:ROOM:NORMAL
 W:10:20:8
-L:$:MON(962):OBJ(24)
+L:$:MON(slime mold):OBJ(slime mold)
 L:M:MON(*)
 M:%%%%%%%%%%%%%%%%%%%%%%%%%
 M:%.......................%
@@ -1820,7 +1823,7 @@ T:ROOM:NORMAL
 W:20:60:32
 L:~:DARK_PIT(ROOM)
 L:,:SHALLOW_LAVA(ROOM | GLOW)
-L:M:SHALLOW_LAVA(ROOM | GLOW):MON(357)
+L:M:SHALLOW_LAVA(ROOM | GLOW):MON(arch-vile)
 M:       %%%%%%%       
 M:     %%%.....%%%     
 M:    %%.........%%    
@@ -2548,7 +2551,7 @@ M:%%%%%%%%%%%%%%%%%%%%%%%%%
 N:"They have a cave troll!"
 T:ROOM:NORMAL:FORMATION
 W:15:25:8
-L:T:MON(496, NO_GROUP | NO_SLEEP | HASTE)
+L:T:MON(cave troll, NO_GROUP | NO_SLEEP | HASTE)
 L:0:MON(o, DEPTH+10)
 M:%%%%%%%%%%%%%%%%%%%%%%%%%
 M:%.......................%
@@ -2693,8 +2696,8 @@ M:        %%%%%
 N:Cross V
 T:ROOM:NORMAL:FORMATION
 W:20:*:50
-L:+:MON(311)
-L:#:MON(898)
+L:+:MON(door mimic)
+L:#:MON(granite wall)
 L:0:MON(*)
 M:        %%%%%        
 M:        %.8.%        
@@ -4258,7 +4261,7 @@ M:%%%%%%%%%%%%%
 
 N:Jeweler
 T:ROOM:NORMAL:SHOP
-W:20:*:64
+W:20:*:32
 L:7:JEWELER(GLOW)
 M:%%%%%%%%%%%%%
 M:%...........%
@@ -4933,17 +4936,17 @@ T:ROOM:NORMAL
 W:1:*:64
 L:0:MON(*, DEPTH+3)
 L:l:DEEP_LAVA
-L:":RUBBLE
+L:;:RUBBLE
 M:    %%%%%%%%%%    
 M:  %%%.0......%%%  
 M: %%.....l......%% 
-M:%%...#...l".#0..%%
-M:%...l.ll"llll.l..%
+M:%%...#...l;.#0..%%
+M:%...l.ll;llll.l..%
 M:%..#.llllll#lll..%
-M:%..."l#lllllll"..%
+M:%...;l#lllllll;..%
 M:%0..lllllll#ll.0.%
-M:%...l"l#llllll#..%
-M:%%.l..l..l#l".l.%%
+M:%...l;l#llllll#..%
+M:%%.l..l..l#l;.l.%%
 M: %%.#...0..l...%% 
 M:  %%%........%%%  
 M:    %%%%%%%%%%    
@@ -5270,14 +5273,14 @@ T:ROOM:NORMAL
 W:1:*:8
 L:0:MON(UNDEAD)
 L:1:MON(UNDEAD, DEPTH+5)
-L:":RUBBLE
+L:;:RUBBLE
 M:%%%%%%%%%%%%%
 M:%...........%
 M:%.#.#.#.#.#.%
-M:%.".".".".".%
+M:%.;.;.;.;.;.%
 M:%..0......0.%
 M:%.....1.....%
-M:%.".".".".".%
+M:%.;.;.;.;.;.%
 M:%.#.#.#.#.#.%
 M:%......0....%
 M:%%%%%%%%%%%%%
@@ -5872,14 +5875,14 @@ N:Barrow 1
 T:ROOM:NORMAL
 W:1:*:5
 L:0:MON(UNDEAD)
-L:":RUBBLE
+L:;:RUBBLE
 M:%%%%%%%%%
 M:%.......%
-M:%.."""..%
-M:%.""0"".%
-M:%."000".%
-M:%.""0"".%
-M:%.."""..%
+M:%..;;;..%
+M:%.;;0;;.%
+M:%.;000;.%
+M:%.;;0;;.%
+M:%..;;;..%
 M:%.......%
 M:%%%%%%%%%
 
@@ -5888,16 +5891,16 @@ T:ROOM:NORMAL
 W:1:*:10
 L:0:MON(UNDEAD, DEPTH+3)
 L:1:MON(UNDEAD, DEPTH+7)
-L:":RUBBLE
+L:;:RUBBLE
 M:%%%%%%%%%%%%%
 M:%...........%
-M:%..."""""...%
-M:%..""...""..%
-M:%."".0.0."".%
-M:%."...1...".%
-M:%."".0.0."".%
-M:%..""...""..%
-M:%..."""""...%
+M:%...;;;;;...%
+M:%..;;...;;..%
+M:%.;;.0.0.;;.%
+M:%.;...1...;.%
+M:%.;;.0.0.;;.%
+M:%..;;...;;..%
+M:%...;;;;;...%
 M:%...........%
 M:%%%%%%%%%%%%%
 
@@ -9740,7 +9743,8 @@ M:%.#####.#####.%
 M:%.............%
 M:%%%%%%%%%%%%%%%
 
-# New Vaults 
+#####################################
+# New Vaults (clouded)
 N:More Cells
 T:VAULT:LESSER
 W:30:70:1
@@ -10244,6 +10248,348 @@ M:%.XXX...%%%                               %%%...XXX.%
 M:%.XX..%%%                                   %%%..XX.%
 M:%....%%                                       %%....%
 M:%%%%%%                                         %%%%%%
+
+N:Greater vault (Hall)
+T:VAULT:GREATER
+W:40:*:1
+L:5:OBJ(*, DEPTH+7)
+M:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+M:%.................................%
+M:%..........XXXXXXXXXXXXX..........%
+M:%......XXXXXXXXX...XXXXXXXXX......%
+M:%...XXXXXXXXXXX.....XXXXXXXXXXX...%
+M:%..XX999X.&..+.......+..&.X999XX..%
+M:%.XX5559X..&.X.X...X.X.&..X9555XX.%
+M:%.X95985X+XXXX.......XXXX+X58959X.%
+M:%.X95895X..@.X.X...X.X.@..X59859X.%
+M:%.X99555+.@..X.......X..@.+55599X.%
+M:%.XXXXXXXXXX+X.X...X.X+XXXXXXXXXX.%
+M:%.X*****X59..X.......X..95X*****X.%
+M:%.X*999*X59@.X.X...X.X.@95X*999*X.%
+M:%.X*****XXXXXX.......XXXXXX*****X.%
+M:%.XXX+XXX....X.X...X.X....XXX+XXX.%
+M:%.X@....+.@@.+.......+.@@.+....@X.%
+M:%.XXX+XXX....X.X...X.X....XXX+XXX.%
+M:%.X*****XXXXXX.......XXXXXX*****X.%
+M:%.X*999*X,,,,X.X...X.X,,,,X*999*X.%
+M:%.X*****X,,,,X.......X,,,,X*****X.%
+M:%.XXXXXXXXXX+X.X...X.X+XXXXXXXXXX.%
+M:%.X.....+.&..X.......X..&.+.....X.%
+M:%.X.,,,.X..&.X.X...X.X.&..X.,,,.X.%
+M:%.X.,,,.X+XXXX.......XXXX+X.,,,.X.%
+M:%.XX.,,.X..&.X.X...X.X.&..X.,,.XX.%
+M:%..XX...X.&..+.......+..&.X...XX..%
+M:%...XXXXXXXXXXX.....XXXXXXXXXXX...%
+M:%......XXXXXXXXX...XXXXXXXXX......%
+M:%..........XXXXX+++XXXXX..........%
+M:%.................................%
+M:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+N:Greater vault (Open)
+T:VAULT:GREATER
+W:60:*:1
+L:3:OBJ(*, DEPTH+3)
+L:5:OBJ(*, DEPTH+7)
+L:$:OBJ(GOLD)
+M:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+M:%..........................................%
+M:%.XXXXXXXXXXXXXXXXXXX++XXXXXXXXXXXXXXXXXXX.%
+M:%.X88X,9X,8X,9X,8X,9X..X,9X,8X,9X,8X,9X88X.%
+M:%.X88X&&X&&X&&X&&X&&X..X&&X&&X&&X&&X&&X88X.%
+M:%.X+XX+XX+XX+XX+XX+XX..X+XX+XX+XX+XX+XXX+X.%
+M:%.X8&X................................+&,X.%
+M:%.X,&+.@............................@.X&8X.%
+M:%.XXXX................................XXXX.%
+M:%.X9&X................................+&,X.%
+M:%.X,&+................................X&9X.%
+M:%.XXXX...........$$$$$$$$$$...........XXXX.%
+M:%.X8&X...........$$$$$$$$$$...........+&,X.%
+M:%.X,&+...........$$$$33$$$$...........X&8X.%
+M:%.XXXX...........$$$3333$$$...........XXXX.%
+M:%.+..............$$335533$$..............+.%
+M:%.+..............$$335533$$..............+.%
+M:%.XXXX...........$$$3333$$$...........XXXX.%
+M:%.X8&X...........$$$$33$$$$...........+&,X.%
+M:%.X,&+...........$$$$$$$$$$...........X&8X.%
+M:%.XXXX...........$$$$$$$$$$...........XXXX.%
+M:%.X9&X................................+&,X.%
+M:%.X,&+................................X&9X.%
+M:%.XXXX................................XXXX.%
+M:%.X8&X.@............................@.+&,X.%
+M:%.X,&+................................X&8X.%
+M:%.X+XXX+XX+XX+XX+XX+X..XX+XX+XX+XX+XX+XX+X.%
+M:%.X88X&&X&&X&&X&&X&&X..X&&X&&X&&X&&X&&X88X.%
+M:%.X88X9,X8,X9,X8,X9,X..X9,X8,X9,X8,X9,X88X.%
+M:%.XXXXXXXXXXXXXXXXXXX++XXXXXXXXXXXXXXXXXXX.%
+M:%..........................................%
+M:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+N:Greater vault (Twisted Checkerboard)
+T:VAULT:GREATER
+W:60:*:1
+M:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+M:%#XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX#%
+M:%X9X8X9X8X9X8X9X8X9X8X9X8X9X8X9X8X%
+M:%XX#X#X#X#X#X#X#X#X#X#X#X#X#X#X#XX%
+M:%X8X9X8X9X8X9X8X9X8X9X8X9X8X9X8X9X%
+M:%XX#X#X#X#X#X#X#X#X#X#X#X#X#X#X#XX%
+M:%X9X8X9X8X9X8X9X8X9X8X9X8X9X8X9X8X%
+M:%XX#X#X#X#X#X#X#X#X#X#X#X#X#X#X#XX%
+M:%X8X9X8X9X8X9X8X9X8X9X8X9X8X9X8X9X%
+M:%XX#X#X#X#X#X#X#X#X#X#X#X#X#X#X#XX%
+M:%X9X8X9X8X9X8X9X8X9X8X9X8X9X8X9X8X%
+M:%XX#X#X#X#X#X#X#X#X#X#X#X#X#X#X#XX%
+M:%X8X9X8X9X8X9X8X9X8X9X8X9X8X9X8X9X%
+M:%#XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX#%
+M:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+N:Greater vault (Convoluted)
+T:VAULT:GREATER
+W:40:*:1
+L:3:OBJ(*, DEPTH+3)
+L:5:OBJ(*, DEPTH+7))
+M:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+M:%................................................%
+M:%......XXXXXXXX.....XXXXXXXXXX.....XXXXXXXX......%
+M:%....XXX&#XXX&XXX.XXX..XXXX..XXX.XXX&XXX#&XXX....%
+M:%...XX..XX99XX..XXX..XX.XX.XX..XXX..XX99XX..XX...%
+M:%...X.XX.X99X.XX.X.XXX.X&&X.XXX.X.XX.X99X.XX.X...%
+M:%..XXX..XXXXXX..X.X9X@XXXXXX@X9X.X..XXXXXX..XXX..%
+M:%..X8#XX.&XX&.XXXXXXXX#3333#XXXXXXXX.&XX&.XX#8X..%
+M:%.XXXXX.XXXXXX.X@XXX99XXXXXX99XXX@X.XXXXXX.XXXXX.%
+M:%.X&X..X#****XX#XXXXXX#5555#XXXXXX#XX****#X..X&X.%
+M:%.XX.XX.X*53*^^X,,,X88XXXXXX88X,,,X^^*35*X.XX.XX.%
+M:%.XX.XX.X*35*^^X,,,XXXX#XX#XXXX,,,X^^*53*X.XX.XX.%
+M:%.X&X..X#****XX#XXXXX.@X88X@.XXXXX#XX****#X..X&X.%
+M:%.XXXXX.XXXXXX.X@X@.#XXXXXXXX#.@X@X.XXXXXX.XXXXX.%
+M:%..X8#XX.&XX&.XXXXXXX&.#XX#.&XXXXXXX.&XX&.XX#8X..%
+M:%..XXX..XXXXXX..X.X&XXXX&&XXXX&X.XX.XXXXXX..XXX..%
+M:%...X.XX.X99X.XX.X.XX..#XX#..XX.X.XX.X99X.XX.X...%
+M:%...XX..XX99XX..XXX..XXX^^XXX..XXX..XX99XX..XX...%
+M:%....XXX&#XXX&XXX.XXX#9X^^X9#XXX.XXX&XXX#&XXX....%
+M:%......XXXXXXXX.....XXXX++XXXX.....XXXXXXXX......%
+M:%................................................%
+M:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+N:Greater vault (Star)
+T:VAULT:GREATER
+W:40:*:1
+M:        %%%%%%%%%%        
+M:        %........%        
+M:        %.XX++XX.%        
+M:   %%%%%%.X....X.%%%%%%   
+M:   %......X....X......%   
+M:   %.XXXXXX....XXXXXX.%   
+M:   %.X&...+.&&.+...&X.%   
+M:   %.X....XXXXXX....X.%   
+M:%%%%.X....X9999X....X.%%%%
+M:%....X...&X9XX9X&...X....%
+M:%.XXXX+XXXX9XX9XXXX+XXXX.%
+M:%.X@...XXXX#XX#XXXX...@X.%
+M:%.X....X999X88X999X....X.%
+M:%.X....X999X88X999X....X.%
+M:%.X@...XXXX#XX#XXXX...@X.%
+M:%.XXXX+XXXX&XX&XXXX+XXXX.%
+M:%....X...&X&XX&X&...X....%
+M:%%%%.X....X&&&&X....X.%%%%
+M:   %.X....XX##XX....X.%   
+M:   %.X&...+....+...&X.%   
+M:   %.XXXXXX....XXXXXX.%   
+M:   %......X....X......%   
+M:   %%%%%%.X9..9X.%%%%%%   
+M:        %.XXXXXX.%        
+M:        %........%        
+M:        %%%%%%%%%%        
+
+N:Greater vault (Keep)
+T:VAULT:GREATER
+W:40:*:1
+L:T:TREE
+M:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+M:%...................................%
+M:%........XXXXXXXXX.XXXXXXXXX........%
+M:%.....XXXX&XXX.#8X.X8#.XXX&XXXX.....%
+M:%....XX&X.X.X.XXXX.XXXX.X.X.X&XX....%
+M:%...XXXX.XXX.XXX&...&XXX.XXX.XXXX...%
+M:%..XX..X.X8X.X.XXX.XXX.X.X8X.X..XX..%
+M:%.XX.XX.XX#XX.X.X.X.X.X.XX#XX.XX.XX.%
+M:%.XX#XXXX@X.X.X+XX.XX+X.X.X@XXXX#XX.%
+M:%.X9X9XX*X*X.XX.......XX.X*X*XX9X9X.%
+M:%.XXXXX*X*X*XX....T....XX*X*X*XXXXX.%
+M:%.X99X&X*X*XX..T.....T..XX*X*X&X99X.%
+M:%.X99#X*X*X@X...........X@X*X*X#99X.%
+M:%.X99X&X*X*XX..T.....T..XX*X*X&X99X.%
+M:%.XXXXX*X*X*XX....T....XX*X*X*XXXXX.%
+M:%.X9X9XX*X*X.XX.......XX.X*X*XX9X9X.%
+M:%.XX#XXXX@X.X.X+XX.XX+X.X.X@XXXX#XX.%
+M:%.XX.XX.XX#XX.X.X.X.X.X.XX#XX.XX.XX.%
+M:%..XX..X.X8X.X.XXX.XXX.X.X8X.X..XX..%
+M:%...XXXX.XXX.XXX&...&XXX.XXX.XXXX...%
+M:%....XX&X.X.X.XXXX.XXXX.X.X.X&XX....%
+M:%.....XXXX&XXX.#8X.X8#.XXX&XXXX.....%
+M:%........XXXXXXXXX.XXXXXXXXX........%
+M:%...................................%
+M:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+N:Greater vault (Ringway)
+T:VAULT:GREATER
+W:40:*:1
+M:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+M:%.................................................%
+M:%.................XXXX.......XXXX.................%
+M:%.............XXXXX..XXXXXXXXX..XXXXX.............%
+M:%.......XXXXXXX9..#..#..9X9..#..#..9XXXXXXX.......%
+M:%.XXXXXXXXXXXXXXXXX..XXXXXXXXX..XXXXXXXXXXXXXXXXX.%
+M:%.X................&&.........&&................X.%
+M:%.X................&&.........&&................X.%
+M:%.X..XXXXXXXXXXXXXX..XXXXXXXXX..XXXXXXXXXXXXXX..X.%
+M:%.X..X8,,,,,,,#9..#..#..9X9..#..#..9#,,,,,,,8X..X.%
+M:%.X^^XXXXXXXXXXXXXX..XXXXXXXXX..XXXXXXXXXXXXXX^^X.%
+M:%.X^^XXXXXXXXXXXXXXXXX999X999XXXXXXXXXXXXXXXXX^^X.%
+M:%..................&&#989X989#&&..................%
+M:%.X^^XXXXXXXXXXXXXXXXX999X999XXXXXXXXXXXXXXXXX^^X.%
+M:%.X^^XXXXXXXXXXXXXX..XXXXXXXXX..XXXXXXXXXXXXXX^^X.%
+M:%.X..X8,,,,,,,#9..#..#..9X9..#..#..9#,,,,,,,8X..X.%
+M:%.X..XXXXXXXXXXXXXX..XXXXXXXXX..XXXXXXXXXXXXXX..X.%
+M:%.X................&&.........&&................X.%
+M:%.X................&&.........&&................X.%
+M:%.XXXXXXXXXXXXXXXXX..XXXXXXXXX..XXXXXXXXXXXXXXXXX.%
+M:%.......XXXXXXX9..#..#..9X9..#..#..9XXXXXXX.......%
+M:%.............XXXXX..XXXXXXXXX..XXXXX.............%
+M:%.................XXXX.......XXXX.................%
+M:%.................................................%
+M:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+N:Greater vault (Boxed)
+T:VAULT:GREATER
+W:40:*:1
+M:%%%%%%%%%%%%%%%%%%%%%%%%%%%
+M:%.........................%
+M:%........XXXXXXXXX........%
+M:%.....XXXX8#999#8XXXX.....%
+M:%..XXXX&XXXX989XXXX&XXXX..%
+M:%..X9#.X.#9X999X9#.X.#9X..%
+M:%.XXXXX.XXXXX+XXXXX.XXXXX.%
+M:%.X,,,X.X,,,X.X,,,X.X,,,X.%
+M:%.X,,,+.X,,,X.X,,,X.+,,,X.%
+M:%.X,,,X.X,,,X.X,,,X.X,,,X.%
+M:%.XXXXX.XX+XX.XX+XX.XXXXX.%
+M:%....X&X&X.X&X&X.X&X&X....%
+M:%.X..XX.XX.XX.XX.XX.XX..X.%
+M:%.....+.+.X.+.+.X.+.+.....%
+M:%.X..XX.XX.XX.XX.XX.XX..X.%
+M:%....X&X&X.X&X&X.X&X&X....%
+M:%.XXXXX.XX+XX.XX+XX.XXXXX.%
+M:%.X,,,X.X,,,X.X,,,X.X,,,X.%
+M:%.X,,,+.X,,,X.X,,,X.+,,,X.%
+M:%.X,,,X.X,,,X.X,,,X.X,,,X.%
+M:%.XXXXX.XXXXX+XXXXX.XXXXX.%
+M:%..X9#.X.#9X999X9#.X.#9X..%
+M:%..XXXX&XXXX989XXXX&XXXX..%
+M:%.....XXXX8#999#8XXXX.....%
+M:%........XXXXXXXXX........%
+M:%.........................%
+M:%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+N:Greater vault (Maw)
+T:VAULT:GREATER
+W:40:*:1
+M:            %%%%%%%%%%%%%%%%%%            
+M:         %%%%XXXXXXXXXXXXXXXX%%%%         
+M:      %%%%XXXX^^,^^^^^^^^,^^XXXX%%%%      
+M:   %%%%XXXX^^,,,X,,X++X,,X,,,^^XXXX%%%%   
+M:%%%%XXXX^^,,,X99XXXX..XXXX99X,,,^^XXXX%%%%
+M:%XXXX^^,,,X99XXXX@.X..X.@XXXX99X,,,^^XXXX%
+M:%X^^,,,X99XXXX&&X..X..X..X&&XXXX99X,,,^^X%
+M:%X,,X99XXXX&&X..X........X..X&&XXXX99X,,X%
+M:%X88XXXX&&X..X..............X..X&&XXXX88X%
+M:%XXXX..X..X....................X..X..XXXX%
+M:%X..X..X..........................X..X..X%
+M:%#......................................#%
+M:%#......................................#%
+M:%X..X..X..........................X..X..X%
+M:%XXXX..X..X....................X..X..XXXX%
+M:%X88XXXX&&X..X..............X..X&&XXXX88X%
+M:%X,,X99XXXX&&X..X........X..X&&XXXX99X,,X%
+M:%X^^,,,X99XXXX&&X..X..X..X&&XXXX99X,,,^^X%
+M:%XXXX^^,,,X99XXXX@.X..X.@XXXX99X,,,^^XXXX%
+M:%%%%XXXX^^,,,X99XXXX..XXXX99X,,,^^XXXX%%%%
+M:   %%%%XXXX^^,,,X,,X++X,,X,,,^^XXXX%%%%   
+M:      %%%%XXXX^^,^^^^^^^^,^^XXXX%%%%      
+M:         %%%%XXXXXXXXXXXXXXXX%%%%         
+M:            %%%%%%%%%%%%%%%%%%            
+
+N:Greater vault (Castle Gehenna)
+T:VAULT:GREATER
+W:60:*:1
+L:5:OBJ(*, DEPTH+7))
+L:U:MON(HI_DEMON, NO_GROUP | NO_SLEEP | DEPTH+10)
+L:~:DEEP_LAVA
+M:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+M:%#######.....###.....#...##...##...##..#...#.#..######%
+M:%#####...........~........#......~.....#.........#####%
+M:%###....~.~~....~~~.~..~....~...~~..~~...~..~..~...###%
+M:%....~~~~~~~~.~~~~~~~.~~~~.~~~~~~~~~~~~.~~~~~.~~~~...#%
+M:%..~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~..#%
+M:%#..~~~~~~~~XXXXXXXXXXXXXXXXXXXXXXXXX~~~~~~~~~~~~~~~..%
+M:%#..~~~~~XXXX..@...@...@...@...@....X~X~~X~~~~~~~~~..#%
+M:%##..~~~XX..+....@...@...@...@......XXXXXXXX~~~~~~~...%
+M:%#..~~~XX...XXXXXXXXXXXXXXXXXXXXXXX+X,,,,,,XXXX~~~~~.#%
+M:%..~~~~X@...X58585X*****X.........X.X,,99,,+..XX~~~..#%
+M:%#..~~XX....X95959X*999*X.U.~~~.U.X.X,9889,X...XX~~.##%
+M:%##.~~X@.X.U+58585X*989*+..~~~~~..+.X,,99,,X....X~~..#%
+M:%...~~X.....X95959X*989*+..~~~~~..+.X,,,,,,XU.X.X~~~..%
+M:%#..~~X.....X58585X*999*X.U.~~~.U.X.XXXXXXXX....X~~...%
+M:%..~~~X@.X.UXXXXXXX*****X.........X.X......XU.X.X~~..#%
+M:%#.~~~XX....X,,,,,XXXXXXXXXXXXXXXXX.X.@@@@.X....X~~~..%
+M:%...~~~X@...X,,8,,X~~X.@.@.+........+.@@@@.X...XX~~..#%
+M:%#..~~~XX...+,989,X~~X.....XXXXXXXXXX.@@@@.+..XX~~~.##%
+M:%....~~~XX@@X,,8,,X~~XXX+XXX~~X~~X~~X......XXXX~~~...#%
+M:%##..~~~~XXXX,,,,,X~~~.U.U...~~~~~~~XXXXXXXX~~~~~~~...%
+M:%#..~~~~~~~~XXXXXXX~...X.X..~~~~~~~~~~X~~X~~~~~~~~~..#%
+M:%#...~~~~~~~~~X~~X~~~~....~~~~~~~~~~~~~~~~~~~~~~~~..##%
+M:%##...~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~..###%
+M:%###...~~~~~~~~~~.~~~~~~~.~~~.~~~~~~~~~~~~~~~~~~~...##%
+M:%#####..~...~~~....~~~.~~......~..~~.~~...~~~..~..####%
+M:%#####...........#..........#....................#####%
+M:%#######......#####...#....##....##....#...###########%
+M:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+N:Greater vault (Tower of Heaven)
+T:VAULT:GREATER
+W:60:*:1
+L:T:TREE
+L:r:RUBBLE
+M:       %%%%%  %%%%%%%%%%  %%%%       
+M:     %%%TTT%%%%TTTTTTTT%%%%TT%%%%%%  
+M:   %%%%TTTTTT%TTTTTTTTTTTTTTTTTTTT%% 
+M: %%%TTTTTTTTTTTT##r##TTTTTTTTTTTTTT% 
+M: %rTT#TTTTTTTTr#T.@.##TTTrTTTTTT#TT%%
+M: %%TTTTT#####T##.@@@.r####r##TTTTTTT%
+M:  %%TTTTrTrT.TT##T@.##TTT..T##TTrTT#%
+M:  %TTT##TT..T&.T#TT#rT..&..TTr#TTTTT%
+M:%%%TT##Tr.......T.TT.....T..TT##TTTT%
+M:%TTT##TT....TTT.......TTTTr...TT#TT%%
+M:%TTr#TT...TTXXXXXXXXXXXXXTTT.T.T#TT% 
+M:%%TTTT.&.#TXX8989X9X9898XXTT.&TT#T%% 
+M:%%TT#TT.TTXX89898X9X89898XXTT..T#TT%%
+M:%TTTTT..TXX898989#9#989898XXrT.#TTTT%
+M:%TTT#.T.rTXX89898X9X89898XXTT.TT#TTT%
+M:%TTT#T.&.TTXX8989X9X9898XXT#.&.T##TT%
+M:%r#TrTT#...TXXXXXX#XXXXXXTTT..TT#Tr%%
+M:%TTT##TTT.T.TTTT.......TTTT.TTT##TTT%
+M:%%TTT#TTT..TrTT##.@.##...TT..rT#TTT%%
+M: %%TTT##rTT&..T##...##..T&..T##TTTT% 
+M:  %TTTT##TTT......@...TTTTTTT#TTTT%% 
+M:  %%TTTT##T##..##...##..rT###TTTTTT% 
+M:   %%TTTTTTTT.T##.@.##.T.TTTTTTTTT%% 
+M:    %%%TTTTT...T........TTrTTTTTT%%  
+M:      %%TTrTT...#.@.#....TTTTT%%%%   
+M:       %%%%%%%T.......T%%%%%%%%      
+M:             %%%%%%%%%%%             
+
+# End of New Vaults (clouded)
+#####################################
 
 N:Greater vault (Hall)
 T:VAULT:GREATER

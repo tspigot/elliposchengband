@@ -16,6 +16,7 @@ void rodeo_spell(int cmd, variant *res)
         monster_type *m_ptr;
         monster_race *r_ptr;
         int rlev;
+        bool tame_success = FALSE;
 
         var_set_bool(res, FALSE);
         if (p_ptr->riding)
@@ -35,13 +36,36 @@ void rodeo_spell(int cmd, variant *res)
         rlev = r_ptr->level;
         if (r_ptr->flags1 & RF1_UNIQUE) rlev = rlev * 3 / 2;
         if (rlev > 60) rlev = 60+(rlev-60)/2;
-        if ( randint1(skills_riding_current() / 120 + p_ptr->lev * 2 / 3) > rlev
+
+        if (p_ptr->inside_arena || p_ptr->inside_battle)
+        {
+            cmsg_format(TERM_RED, "You cannot tame anything in here!");
+            tame_success = FALSE;
+        }
+        else if ((r_ptr->flags7 & RF7_GUARDIAN) || (m_ptr->mflag2 & MFLAG2_QUESTOR))
+        {
+            cmsg_format(TERM_RED, "It is impossible to tame %s!", m_name);
+            tame_success = FALSE;
+        }
+        else if (!((skills_riding_current() / 120 + p_ptr->lev * 2 / 3) > rlev
+          && rlev < p_ptr->lev * 3 / 2 + (p_ptr->lev / 5)))
+        {
+            cmsg_format(TERM_RED, "You are not powerful enough to tame %s.", m_name);
+            tame_success = FALSE;
+        }
+        else if (!(randint1(skills_riding_current() / 120 + p_ptr->lev * 2 / 3) > rlev
           && one_in_(2) 
-          && !p_ptr->inside_arena 
-          && !p_ptr->inside_battle
-          && !(r_ptr->flags7 & RF7_GUARDIAN) 
-          && !(r_ptr->flags1 & RF1_QUESTOR)
-          && rlev < p_ptr->lev * 3 / 2 + randint0(p_ptr->lev / 5) )
+          && rlev < p_ptr->lev * 3 / 2 + randint0(p_ptr->lev / 5) ))
+        {
+            // No message here, but still the "you have been thrown off" later down.
+            tame_success = FALSE;
+        }
+        else
+        {
+            tame_success = TRUE;
+        }
+        
+        if (tame_success)
         {
             cmsg_format(TERM_L_GREEN, "You tame %s.", m_name);
             set_pet(m_ptr);
@@ -77,7 +101,7 @@ static void _calc_shooter_bonuses(object_type *o_ptr, shooter_info_t *info_ptr)
     if ( !p_ptr->shooter_info.heavy_shoot
       && p_ptr->shooter_info.tval_ammo == TV_ARROW )
     {
-        p_ptr->shooter_info.num_fire += p_ptr->lev * 150 / 50;
+        p_ptr->shooter_info.num_fire += p_ptr->lev * 2;
     }
 }
 
@@ -99,7 +123,7 @@ static void _birth(void)
     py_birth_obj_aux(TV_POLEARM, SV_BROAD_SPEAR, 1);
     py_birth_obj_aux(TV_SOFT_ARMOR, SV_LEATHER_SCALE_MAIL, 1);
     py_birth_obj_aux(TV_BOW, SV_SHORT_BOW, 1);
-    py_birth_obj_aux(TV_ARROW, SV_AMMO_NORMAL, 20);
+    py_birth_obj_aux(TV_ARROW, SV_ARROW, 20);
 }
 
 class_t *cavalry_get_class(void)

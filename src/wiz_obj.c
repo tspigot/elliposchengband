@@ -541,9 +541,9 @@ static _flag_info_t _brand_flags[] = {
     { OF_BRAND_FIRE,    "Brand Fire" },
     { OF_BRAND_COLD,    "Brand Cold" },
     { OF_BRAND_POIS,    "Brand Poison" },
-    { OF_BRAND_MANA,    "Brand Mana" },
+    { OF_BRAND_MANA,    "Brand Mana", object_is_melee_weapon },
     { OF_BRAND_CHAOS,   "Chaotic", object_is_melee_weapon },
-    { OF_BRAND_VAMP,    "Vampiric", object_is_melee_weapon },
+    { OF_BRAND_VAMP,    "Vampiric" },
     { OF_IMPACT,        "Impact", object_is_melee_weapon },
     { OF_STUN,          "Stun", object_is_melee_weapon },
     { OF_VORPAL,        "Vorpal", object_is_melee_weapon },
@@ -605,6 +605,8 @@ static int _smith_reroll(object_type *o_ptr)
         doc_insert(_doc, "   <color:y>g</color>) Good\n");
         doc_insert(_doc, "   <color:y>e</color>) Excellent\n");
         doc_insert(_doc, "   <color:y>r</color>) Random Artifact\n");
+        if (o_ptr->name1)
+            doc_insert(_doc, "   <color:y>R</color>) Replacement Artifact\n");
 
         doc_newline(_doc);
         doc_printf(_doc, "   <color:y>m</color>) Min Score = %d\n", min);
@@ -626,7 +628,7 @@ static int _smith_reroll(object_type *o_ptr)
         case ESCAPE: return _CANCEL;
         case 'm':
         {
-            char buf[50];
+            char buf[51];
             sprintf(buf, "%d", min);
             if (get_string("Min Score: ", buf, 50))
             {
@@ -642,6 +644,10 @@ static int _smith_reroll(object_type *o_ptr)
         case 'g': _reroll_aux(&copy, AM_GOOD, min); break;
         case 'e': _reroll_aux(&copy, AM_GOOD | AM_GREAT, min); break;
         case 'r': _reroll_aux(&copy, AM_GOOD | AM_GREAT | AM_SPECIAL, min); break;
+        case 'R':
+            create_replacement_art(o_ptr->name1, &copy);
+            obj_identify_fully(&copy);
+            break;
         }
     }
 }
@@ -851,6 +857,7 @@ static int _smith_device_effect(object_type *o_ptr)
         doc_insert(_doc, " <color:y>m</color>/<color:y>M</color>) Adjust mana\n");
         doc_insert(_doc, " <color:y>l</color>/<color:y>L</color>) Adjust effect level\n");
         doc_insert(_doc, " <color:y>c</color>/<color:y>C</color>) Adjust effect cost\n");
+        doc_insert(_doc, "   <color:y>r</color>) Recharge\n");
 
         doc_newline(_doc);
         doc_insert(_doc, " <color:y>RET</color>) Accept changes\n");
@@ -928,6 +935,9 @@ static int _smith_device_effect(object_type *o_ptr)
             }
             break;
         }
+        case 'r':
+            device_regen_sp(&copy, 1000);
+            break;
         }
     }
 }
@@ -1017,7 +1027,8 @@ static bool _brands_p(object_type *o_ptr)
 {
     return object_is_melee_weapon(o_ptr)
         || object_is_ammo(o_ptr)
-        || object_is_bow(o_ptr);
+        || object_is_bow(o_ptr)
+        || o_ptr->tval == TV_RING;
 }
 
 static _command_t _commands[] = {
@@ -1121,32 +1132,30 @@ static bool _smith_p(object_type *o_ptr)
 
 void wiz_obj_smith(void)
 {
-    int          item;
-    object_type *o_ptr;
-    object_type  copy;
+    obj_t        copy;
+    obj_prompt_t prompt = {0};
 
-    item_tester_hook = _smith_p;
-    item_tester_no_ryoute = TRUE;
+    prompt.prompt = "Smith which object?";
+    prompt.error = "You have nothing to work with.";
+    prompt.filter = _smith_p;
+    prompt.where[0] = INV_PACK;
+    prompt.where[1] = INV_EQUIP;
+    prompt.where[2] = INV_QUIVER;
+    prompt.where[3] = INV_FLOOR;
 
-    if (!get_item(&item, "Smith which object? ", "You have nothing to work with.", USE_INVEN | USE_EQUIP | USE_FLOOR))
-        return;
-    if (item >= 0)
-        o_ptr = &inventory[item];
-    else
-        o_ptr = &o_list[0 - item];
-    
-    copy = *o_ptr;
+    obj_prompt(&prompt);
+    if (!prompt.obj) return;
+
+    copy = *prompt.obj;
     obj_identify_fully(&copy);
 
     msg_line_clear();
     if (_smith_object(&copy) == _OK)
     {
-        if (item >= 0) p_ptr->total_weight -= o_ptr->weight*o_ptr->number;
-        *o_ptr = copy;
-        if (item >= 0) p_ptr->total_weight += o_ptr->weight*o_ptr->number;
-        p_ptr->update |= PU_BONUS;
-        p_ptr->notice |= PN_COMBINE | PN_REORDER;
-        p_ptr->window |= PW_INVEN;
+        obj_loc_t loc = prompt.obj->loc; /* re-roll will erase this ... */
+        *prompt.obj = copy;
+        prompt.obj->loc = loc;
+        obj_release(prompt.obj, OBJ_RELEASE_ENCHANT);
     }
 }
 

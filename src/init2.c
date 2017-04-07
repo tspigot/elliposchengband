@@ -15,6 +15,23 @@
 #include "init.h"
 #include "z-doc.h"
 
+#ifdef HAVE_STAT
+#include <sys/stat.h>
+#include <sys/types.h>
+#endif
+
+#ifdef HAVE_FCNTL_H
+# include <fcntl.h>
+#endif
+
+#if defined (WINDOWS) && !defined (CYGWIN)
+# define my_mkdir(path, perms) mkdir(path)
+#elif defined(HAVE_MKDIR) || defined(MACH_O_CARBON) || defined (CYGWIN)
+# define my_mkdir(path, perms) mkdir(path, perms)
+#else
+# define my_mkdir(path, perms) FALSE
+#endif
+
 /*
  * This file is used to initialize various variables and arrays for the
  * Angband game. Note the use of "fd_read()" and "fd_write()" to bypass
@@ -221,45 +238,39 @@ void init_file_paths(const char *configpath, const char *libpath, const char *da
 
 }
 
-#ifdef WIN32
-/* This just broke one day ... sigh */
-#include <sys/stat.h>
-#endif
-
 bool dir_exists(const char *path)
 {
+    #ifdef HAVE_STAT
     struct stat buf;
     if (stat(path, &buf) != 0)
         return FALSE;
-#ifdef WIN32
     else if (buf.st_mode & S_IFDIR)
-#else
-    else if (S_ISDIR(buf.st_mode))
-#endif
         return TRUE;
     else
         return FALSE;
+    #else
+    return TRUE;
+    #endif
 }
 
-#define PATH_SEPC '/'
+#ifdef HAVE_STAT
 bool dir_create(const char *path)
 {
-#ifdef WIN32
-    /* If the directory already exists then we're done */
-    if (dir_exists(path)) return TRUE;
-    return FALSE;
-#else
     const char *ptr;
     char buf[512];
 
     /* If the directory already exists then we're done */
     if (dir_exists(path)) return TRUE;
+
+    #ifdef WINDOWS
+    /* If we're on windows, we need to skip past the "C:" part. */
+    if (isalpha(path[0]) && path[1] == ':') path += 2;
+    #endif
+
     /* Iterate through the path looking for path segements. At each step,
      * create the path segment if it doesn't already exist. */
-    for (ptr = path; *ptr; ptr++)
-    {
-        if (*ptr == PATH_SEPC)
-        {
+    for (ptr = path; *ptr; ptr++) {
+        if (*ptr == PATH_SEPC) {
             /* Find the length of the parent path string */
             size_t len = (size_t)(ptr - path);
 
@@ -279,12 +290,16 @@ bool dir_create(const char *path)
             if (dir_exists(buf)) continue;
 
             /* The parent doesn't exist, so create it or fail */
-            if (mkdir(buf, 0755) != 0) return FALSE;
+            if (my_mkdir(buf, 0755) != 0) return FALSE;
         }
     }
-    return mkdir(path, 0755) == 0 ? TRUE : FALSE;
-#endif
+    return my_mkdir(path, 0755) == 0 ? TRUE : FALSE;
 }
+#else /* HAVE_STAT */
+bool dir_create(const char *path) { return FALSE; }
+#endif /* !HAVE_STAT */
+
+
 /*
  * Create any missing directories. We create only those dirs which may be
  * empty (user/, save/, apex/, info/, help/). The others are assumed
@@ -352,7 +367,6 @@ cptr err_str[PARSE_ERROR_MAX] =
 /*
  * File headers
  */
-header room_head;
 header f_head;
 header k_head;
 header a_head;
@@ -618,28 +632,6 @@ static errr init_d_info(void)
 }
 
 
-/*
- * Initialize the "v_info" array
- *
- * Note that we let each entry have a unique "name" and "text" string,
- * even if the string happens to be empty (everyone has a unique '\0').
- */
-errr init_v_info(void)
-{
-    /* Init the header */
-    init_header(&room_head, max_room_idx, sizeof(room_template_t));
-
-#ifdef ALLOW_TEMPLATES
-
-    /* Save a pointer to the parsing function */
-    room_head.parse_info_txt = parse_v_info;
-
-#endif /* ALLOW_TEMPLATES */
-
-    return init_info("v_info", &room_head,
-             (void*)&room_info, &room_name, &room_text, NULL);
-}
-
 
 /*
  * Initialize the "s_info" array
@@ -686,63 +678,48 @@ static errr init_m_info(void)
 /*
  * Initialize misc. values
  */
-static errr init_misc(void)
+static errr _parse_misc(char *line, int options)
 {
-    /* Initialize the values */
-    process_dungeon_file("misc.txt", 0, 0, 0, 0);
-
-    return 0;
+    char *zz[2];
+    if (tokenize(line, 2, zz, 0) == 2)
+    {
+        if (zz[0][0] == 'Q')
+            max_quests = atoi(zz[1]);
+        else if (streq(zz[0], "R"))
+            max_r_idx = atoi(zz[1]);
+        else if (zz[0][0] == 'B')
+            max_b_idx = atoi(zz[1]);
+        else if (zz[0][0] == 'K')
+            max_k_idx = atoi(zz[1]);
+        else if (zz[0][0] == 'F')
+            max_f_idx = atoi(zz[1]);
+        else if (zz[0][0] == 'A')
+            max_a_idx = atoi(zz[1]);
+        else if (zz[0][0] == 'E')
+            max_e_idx = atoi(zz[1]);
+        else if (zz[0][0] == 'D')
+            max_d_idx = atoi(zz[1]);
+        else if (zz[0][0] == 'O')
+            max_o_idx = atoi(zz[1]);
+        else if (zz[0][0] == 'M')
+            max_m_idx = atoi(zz[1]);
+        else if (zz[0][0] == 'P')
+            max_pack_info_idx = atoi(zz[1]);
+        else if (zz[0][0] == 'W')
+        {
+            if (zz[0][1] == 'X')
+                max_wild_x = atoi(zz[1]);
+            if (zz[0][1] == 'Y')
+                max_wild_y = atoi(zz[1]);
+        }
+        return 0;
+    }
+    return PARSE_ERROR_GENERIC;
 }
 
-
-/*
- * Initialize town array
- */
-static errr init_towns(void)
+static errr init_misc(void)
 {
-    int i, j;
-
-    /*** Prepare the Towns ***/
-
-    /* Allocate the towns */
-    C_MAKE(town, max_towns, town_type);
-
-    for (i = 1; i < max_towns; i++)
-    {
-        /*** Prepare the Stores ***/
-
-        /* Allocate the stores */
-        C_MAKE(town[i].store, MAX_STORES, store_type);
-
-        /* Fill in each store */
-        for (j = 0; j < MAX_STORES; j++)
-        {
-            /* Access the store */
-            store_type *st_ptr = &town[i].store[j];
-
-            if ((i > 1) && (j == STORE_MUSEUM || j == STORE_HOME)) continue;
-
-            /* Assume full stock */
-            if (j == STORE_HOME)
-            {
-                st_ptr->stock_size = (STORE_INVEN_MAX * 10);
-            }
-            else if (j == STORE_MUSEUM)
-            {
-                st_ptr->stock_size = (STORE_INVEN_MAX * 50);
-            }
-            else
-            {
-                st_ptr->stock_size = STORE_INVEN_MAX;
-            }
-
-
-            /* Allocate the stock */
-            C_MAKE(st_ptr->stock, st_ptr->stock_size, object_type);
-        }
-    }
-
-    return 0;
+    return parse_edit_file("misc.txt", _parse_misc, 0);
 }
 
 /*
@@ -785,28 +762,6 @@ errr init_buildings(void)
     }
 
     return (0);
-}
-
-
-/*
- * Initialize quest array
- */
-static errr init_quests(void)
-{
-    int i;
-
-    /*** Prepare the quests ***/
-
-    /* Allocate the quests */
-    C_MAKE(quest, max_quests, quest_type);
-
-    /* Set all quest to "untaken" */
-    for (i = 0; i < max_quests; i++)
-    {
-        quest[i].status = QUEST_STATUS_UNTAKEN;
-    }
-
-    return 0;
 }
 
 
@@ -1023,12 +978,6 @@ static errr init_other(void)
 
     /* Quark variables */
     quark_init();
-
-    /*** Prepare the Player inventory ***/
-
-    /* Allocate it */
-    C_MAKE(inventory, INVEN_TOTAL, object_type);
-
 
     /*** Prepare the options ***/
 
@@ -1623,11 +1572,11 @@ void init_angband(void)
     if (init_b_info()) quit("Cannot initialize body types");
 
 
-    /* Initialize monster info */
+    /* Initialize monster info ... requires b_info */
     note("[Initializing arrays... (monsters)]");
     if (init_r_info()) quit("Cannot initialize monsters");
 
-    /* Initialize dungeon info */
+    /* Initialize dungeon info ... requires k_info */
     note("[Initializing arrays... (dungeon)]");
     if (init_d_info()) quit("Cannot initialize dungeon");
     {
@@ -1651,26 +1600,18 @@ void init_angband(void)
     if (init_wilderness()) quit("Cannot initialize wilderness");
 
 
-    /* Initialize town array */
-    note("[Initializing arrays... (towns)]");
-
-    if (init_towns()) quit("Cannot initialize towns");
-
-
     /* Initialize building array */
     note("[Initializing arrays... (buildings)]");
 
     if (init_buildings()) quit("Cannot initialize buildings");
 
 
-    /* Initialize quest array */
     note("[Initializing arrays... (quests)]");
-
-    if (init_quests()) quit("Cannot initialize quests");
+    if (!quests_init()) quit("Cannot initialize quests");
 
 
     /* Initialize vault info */
-    if (init_v_info()) quit("Cannot initialize vaults");
+    if (init_v_info(0)) quit("Cannot initialize vaults");
 
     /* Initialize some other arrays */
     note("[Initializing arrays... (other)]");

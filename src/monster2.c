@@ -13,6 +13,8 @@
 #include "angband.h"
 #include "rooms.h"
 
+#include <assert.h>
+
 #define HORDE_NOGOOD 0x01
 #define HORDE_NOEVIL 0x02
 
@@ -443,7 +445,7 @@ void compact_monsters(int size)
             chance = 90;
 
             /* Only compact "Quest" Monsters in emergencies */
-            if ((r_ptr->flags1 & (RF1_QUESTOR)) && (cnt < 1000)) chance = 100;
+            if ((m_ptr->mflag2 & MFLAG2_QUESTOR) && cnt < 1000) chance = 100;
 
             /* Try not to compact Unique Monsters */
             if (r_ptr->flags1 & (RF1_UNIQUE)) chance = 100;
@@ -1169,13 +1171,13 @@ bool mon_is_type(int r_idx, int type)
             return TRUE;
         else if (r_ptr->flags7 & RF7_NAZGUL)
             return TRUE;
-        else if (r_idx == MON_ANGMAR || r_idx == MON_HOARMURATH)
+        else if (r_idx == MON_ANGMAR || r_idx == MON_HOARMURATH || r_idx == MON_DWAR || r_idx == MON_KHAMUL)
              return TRUE;
-        else if (r_ptr->d_char == 'V' && r_idx != 521 && r_idx != 536 && r_idx != 613)
+        else if (r_ptr->d_char == 'V' && r_idx != 521 && r_idx != 536 && r_idx != 613) /* Excludes Oriental, Star, and Fire Vampire*/
             return TRUE;
-        else if (r_ptr->d_char == 'L' && r_idx != 666)
+        else if (r_ptr->d_char == 'L' && r_idx != 666) /* Excludes Iron Lich */
             return TRUE;
-        else if (r_idx == 112 || r_idx == 748)
+        else if (r_idx == 112 || r_idx == 748) /* Disembodied Hand and Hand Druj */
             return TRUE;
         break;
     case SUMMON_MONK:
@@ -1430,8 +1432,8 @@ errr get_mon_num_prep(monster_hook_type monster_hook,
         if (!p_ptr->inside_battle && !chameleon_change_m_idx &&
             summon_specific_type != SUMMON_GUARDIAN)
         {
-            /* Hack -- don't create questors */
-            if (r_ptr->flags1 & RF1_QUESTOR)
+            /* Hack -- don't create (unique) questors or suppressed uniques */
+            if (r_ptr->flagsx & (RFX_QUESTOR | RFX_SUPPRESS))
                 continue;
 
             if ((r_ptr->flags7 & RF7_GUARDIAN) && !no_wilderness)
@@ -1449,7 +1451,7 @@ errr get_mon_num_prep(monster_hook_type monster_hook,
         /* Accept this monster */
         entry->prob2 = entry->prob1;
 
-        if (dun_level && (!p_ptr->inside_quest || is_fixed_quest_idx(p_ptr->inside_quest)) && !restrict_monster_to_dungeon(entry->index) && !p_ptr->inside_battle)
+        if (py_in_dungeon() && !restrict_monster_to_dungeon(entry->index))
         {
             int hoge = entry->prob2 * d_info[dungeon_type].special_div;
             entry->prob2 = hoge / 64;
@@ -1636,6 +1638,8 @@ s16b get_mon_num(int level)
             if ((r_ptr->flags2 & RF2_SOUTHERING) && dungeon_type != DUNGEON_STRONGHOLD) continue;
             if ((r_ptr->flags3 & RF3_OLYMPIAN) && dungeon_type != DUNGEON_OLYMPUS) continue;
         }
+        /* Hack: Some monsters are restricted from quests (e.g. Zeus in no_wilderness mode) */
+        if (quests_get_current() && (r_ptr->flags1 & RF1_NO_QUEST)) continue;
 
         if (!p_ptr->inside_battle && !chameleon_change_m_idx)
         {
@@ -1807,8 +1811,9 @@ void monster_desc(char *desc, monster_type *m_ptr, int mode)
     bool            seen, pron;
     bool            named = FALSE;
 
-    /* Hack: See Issue 116 */
-    if (m_ptr->nickname && !(mode & MD_NO_PET_ABBREV))
+    /* Hack: Chengband requested to just show the pet's name (e.g. 'Stinky' vs
+     * 'Your super-duper multi-hued behemoth called Stinky') */
+    if (m_ptr->nickname && !(mode & MD_NO_PET_ABBREV) && !(mode & MD_PRON_VISIBLE))
     {
         sprintf(desc, "%s", quark_str(m_ptr->nickname));
         return;
@@ -2859,13 +2864,7 @@ void update_mon(int m_idx, bool full)
               && projectable(m_ptr->fy, m_ptr->fx, py, px)
               && projectable(py, px, m_ptr->fy, m_ptr->fx) )
             {
-                if ( town_no_disturb
-                  && !dun_level
-                  && p_ptr->town_num
-                  && !p_ptr->inside_arena
-                  && !p_ptr->inside_battle
-                  && !p_ptr->inside_quest
-                  && r_ptr->level == 0 )
+                if (town_no_disturb && py_in_town() && r_ptr->level == 0)
                 {
                 }
                 else if (disturb_pets || is_hostile(m_ptr))
@@ -3242,6 +3241,9 @@ int place_monster_one(int who, int y, int x, int r_idx, int pack_idx, u32b mode)
     /* Paranoia */
     if (!r_idx) return 0;
 
+    /* Sanity */
+    if (pack_idx && pack_info_list[pack_idx].count > 40) return 0;
+
     /* Paranoia */
     if (!r_ptr->name) return 0;
 
@@ -3282,33 +3284,13 @@ int place_monster_one(int who, int y, int x, int r_idx, int pack_idx, u32b mode)
 
         /* Depth monsters may NOT be created out of depth, unless in Nightmare mode */
         if ((r_ptr->flags1 & (RF1_FORCE_DEPTH)) && (dun_level < r_ptr->level) &&
-            (!ironman_nightmare || (r_ptr->flags1 & (RF1_QUESTOR))))
+            (!ironman_nightmare || (r_ptr->flagsx & (RFX_QUESTOR))))
         {
             /* Cannot create */
             return 0;
         }
-    }
-
-    if (quest_number(dun_level))
-    {
-        int hoge = quest_number(dun_level);
-        if ((quest[hoge].type == QUEST_TYPE_KILL_LEVEL) || (quest[hoge].type == QUEST_TYPE_RANDOM))
-        {
-            if(r_idx == quest[hoge].r_idx)
-            {
-                int number_mon, i2, j2;
-                number_mon = 0;
-
-                /* Count all quest monsters */
-                for (i2 = 0; i2 < cur_wid; ++i2)
-                    for (j2 = 0; j2 < cur_hgt; j2++)
-                        if (cave[j2][i2].m_idx > 0)
-                            if (m_list[cave[j2][i2].m_idx].r_idx == quest[hoge].r_idx)
-                                number_mon++;
-                if(number_mon + quest[hoge].cur_num >= quest[hoge].max_num)
-                    return 0;
-            }
-        }
+        /* XXX Arena and quest accidents. RF1_FIXED_UNIQUE *should* have been set ...
+         * if (r_ptr->flagsx & RFX_SUPPRESS) return 0;*/
     }
 
     if (is_glyph_grid(c_ptr))
@@ -3973,7 +3955,7 @@ bool place_monster_aux(int who, int y, int x, int r_idx, u32b mode)
     /* Give uniques variable AI strategies. We do this as a hack, using the
        existing pack code, by creating a "pack of 1".
                                         v---- Mercy!*/
-    if ((r_ptr->flags1 & RF1_UNIQUE) && !(r_ptr->flags1 & RF1_QUESTOR) && !(r_ptr->flags7 & RF7_GUARDIAN))
+    if ((r_ptr->flags1 & RF1_UNIQUE) && !(r_ptr->flagsx & RFX_QUESTOR) && !(r_ptr->flags7 & RF7_GUARDIAN))
     {
         if (!pack_ptr)
         {
@@ -4020,7 +4002,7 @@ bool place_monster(int y, int x, u32b mode)
     {
         monster_race *r_ptr = &r_info[r_idx];
         if ( warlock_is_pact_monster(r_ptr)
-          && !(r_ptr->flags1 & RF1_QUESTOR)
+          && !(mode & PM_QUESTOR) /* RFX_QUESTOR is *not* set for non-unique quest monsters */
           && one_in_(12 - p_ptr->lev/5) )
         {
             mode |= PM_FORCE_FRIENDLY;
@@ -5055,6 +5037,22 @@ bool player_place(int y, int x)
 {
     /* Paranoia XXX XXX */
     if (cave[y][x].m_idx != 0) return FALSE;
+
+    /* returning from a quest (QUEST_ENTER -> PERMANENT) */
+    if (!player_can_enter(cave[y][x].feat, 0))
+    {
+        int dir, nx, ny;
+        for (dir = 1; dir < 9; dir++)
+        {
+            nx = x + ddx[dir];
+            ny = y + ddy[dir];
+            if (!in_bounds2(ny, nx)) continue;
+            if (!player_can_enter(cave[ny][nx].feat, 0)) continue;
+            x = nx;
+            y = ny;
+            break;
+        }
+    }
 
     /* Save player location */
     py = y;

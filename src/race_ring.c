@@ -1,5 +1,16 @@
 #include "angband.h"
 
+typedef struct {
+    int     effect;
+    int     level;
+    int     cost;
+    int     fail;
+    /*  TODO
+    s16b    extra; */
+} _spell_t, *_spell_ptr;
+static _spell_ptr _find_spell(int effect);
+static bool _gain_effect(effect_t e);
+
 static cptr _mon_name(int r_idx)
 {
     if (r_idx)
@@ -267,12 +278,7 @@ static bool _absorb(object_type *o_ptr)
     if (obj_has_effect(o_ptr))
     {
         effect_t e = obj_get_effect(o_ptr);
-        if (!_effects[e.type])
-        {
-            msg_format("You have gained the power of '%s'.", do_effect(&e, SPELL_NAME, 0));
-        }
-        _effects[e.type]++;
-        result = TRUE;
+        if (_gain_effect(e)) result = TRUE;
     }
 
     if (result)
@@ -475,15 +481,30 @@ static bool _drain_essences(int div)
     return result;
 }
 
+static bool _gain_effect(effect_t e)
+{
+    /* The savefile still records effects that the player can't cast. Useful if an update adds new spells to the castable list, I suppose. */
+    if (_find_spell(e.type))
+    {
+        if (!_effects[e.type])
+            msg_format("You have gained the power of '%s'.", do_effect(&e, SPELL_NAME, 0));
+        else
+            msg_format("Your power of '%s' has grown stronger.", do_effect(&e, SPELL_NAME, 0));
+        _effects[e.type]++;
+        return TRUE;
+    }
+    else
+    {
+        _effects[e.type]++;
+        return FALSE;
+    }
+}
+
 static void _gain_one_effect(int list[])
 {
     effect_t e = {0};
     e.type = _random(list);
-    if (!_effects[e.type])
-        msg_format("You have gained the power of '%s'.", do_effect(&e, SPELL_NAME, 0));
-    else
-        msg_format("Your power of '%s' has grown stronger.", do_effect(&e, SPELL_NAME, 0));
-    _effects[e.type]++;
+    (void)_gain_effect(e);
 }
 
 static void _gain_level(int new_level) 
@@ -545,36 +566,25 @@ static void _absorb_spell(int cmd, variant *res)
         break;
     case SPELL_CAST:
     {
-        object_type * o_ptr;
-        int item;
+        obj_prompt_t prompt = {0};
         char o_name[MAX_NLEN];
 
         var_set_bool(res, FALSE);
-        item_tester_hook = object_is_jewelry;
+        prompt.prompt = "Absorb which item?";
+        prompt.error = "You have nothing to absorb.";
+        prompt.filter = object_is_jewelry;
+        prompt.where[0] = INV_PACK;
+        prompt.where[1] = INV_FLOOR;
 
-        if (!get_item(&item, "Absorb which item? ", "You have nothing to absorb.", USE_INVEN | USE_FLOOR)) break;
+        obj_prompt(&prompt);
+        if (!prompt.obj) return;
 
-        if (item >= 0)
-            o_ptr = &inventory[item];
-        else
-            o_ptr = &o_list[0 - item];
-
-        object_desc(o_name, o_ptr, OD_NAME_ONLY);
+        object_desc(o_name, prompt.obj, OD_NAME_ONLY);
         msg_format("You absorb the power of %s!", o_name);
-        _absorb(o_ptr);
+        _absorb(prompt.obj);
 
-        if (item >= 0)
-        {
-            inven_item_increase(item, -1);
-            inven_item_describe(item);
-            inven_item_optimize(item);
-        }
-        else
-        {
-            floor_item_increase(0 - item, -1);
-            floor_item_describe(0 - item);
-            floor_item_optimize(0 - item);
-        }
+        prompt.obj->number = 0;
+        obj_release(prompt.obj, 0);
 
         var_set_bool(res, TRUE);
         break;
@@ -609,8 +619,8 @@ static void _detect_spell(int cmd, variant *res)
 
             if (!o_ptr->k_idx) continue;
             if (o_ptr->held_m_idx) continue;
-            y = o_ptr->iy;
-            x = o_ptr->ix;
+            y = o_ptr->loc.y;
+            x = o_ptr->loc.x;
             if (distance(py, px, y, x) > rng) continue;
             if (!object_is_jewelry(o_ptr)) continue;
             o_ptr->marked |= OM_FOUND;
@@ -690,7 +700,7 @@ static void _charm_spell(int cmd, variant *res)
     switch (cmd)
     {
     case SPELL_NAME:
-        var_set_string(res, "Charm");
+        var_set_string(res, "Charm Ring Bearer");
         break;
     case SPELL_DESC:
         var_set_string(res, "Attempt to dominate a single ring bearer.");
@@ -750,15 +760,6 @@ static caster_info * _caster_info(void)
     return &me;
 }
 
-typedef struct {
-    int     effect;
-    int     level;
-    int     cost;
-    int     fail;
-/*  TODO
-    s16b    extra; */
-} _spell_t, *_spell_ptr;
-
 #define _MAX_PER_GROUP 30
 typedef struct {
     cptr     name;
@@ -775,18 +776,20 @@ static _group_t _groups[] = {
         { EFFECT_BOLT_COLD,           13,   6, 45 },
         { EFFECT_BOLT_ACID,           14,   8, 55 },
         { EFFECT_BOLT_FIRE,           15,   9, 55 },
-        { EFFECT_BOLT_LITE,           17,  11, 55 },
+        /*{ EFFECT_BOLT_LITE,           17,  11, 55 },*/
         { EFFECT_BOLT_DARK,           19,  12, 60 },
         { EFFECT_BOLT_NETHER,         20,  12, 60 },
-        { EFFECT_BOLT_NEXUS,          22,  15, 65 },
-        { EFFECT_BOLT_CONF,           24,  17, 65 },
+        /*{ EFFECT_BOLT_NEXUS,          22,  15, 65 },*/
+        /*{ EFFECT_BOLT_CONF,           24,  17, 65 },*/
         { EFFECT_BOLT_SOUND,          25,  17, 65 },
         { EFFECT_BOLT_SHARDS,         26,  18, 65 },
-        { EFFECT_BOLT_DISEN,          27,  18, 65 },
-        { EFFECT_BOLT_TIME,           28,  19, 65 },
-        { EFFECT_BOLT_CHAOS,          30,  20, 65 },
+        /*{ EFFECT_BOLT_DISEN,          27,  18, 65 },*/
+        /*{ EFFECT_BOLT_TIME,           28,  19, 65 },*/
+        { EFFECT_BOLT_ICE,            29,  20, 65 },
+        /*{ EFFECT_BOLT_CHAOS,          30,  20, 65 },*/
         { EFFECT_BOLT_WATER,          31,  20, 65 },
-        { EFFECT_BOLT_MANA,           32,  22, 70 },
+        { EFFECT_BOLT_PLASMA,         32,  21, 65 },
+        { EFFECT_BOLT_MANA,           33,  25, 70 },
         { EFFECT_NONE } } },
 
     { "Offense: Ball", '2', TERM_RED,
@@ -796,17 +799,17 @@ static _group_t _groups[] = {
         { EFFECT_BALL_ACID,           25,  14, 55 },
         { EFFECT_BALL_FIRE,           27,  16, 55 },
         { EFFECT_BALL_NETHER,         30,  20, 60 },
-        { EFFECT_BALL_NEXUS,          30,  22, 65 },
-        { EFFECT_BALL_CONF,           30,  25, 65 },
+        /*{ EFFECT_BALL_NEXUS,          30,  22, 65 },*/
+        /*{ EFFECT_BALL_CONF,           30,  25, 65 },*/
         { EFFECT_BALL_SOUND,          31,  25, 65 },
         { EFFECT_BALL_SHARDS,         32,  27, 65 },
-        { EFFECT_BALL_DISEN,          34,  27, 65 },
-        { EFFECT_BALL_TIME,           34,  30, 65 },
+        /*{ EFFECT_BALL_DISEN,          34,  27, 65 },*/
+        /*{ EFFECT_BALL_TIME,           34,  30, 65 },*/
         { EFFECT_BALL_LITE,           35,  35, 65 },
         { EFFECT_BALL_DARK,           36,  35, 65 },
         { EFFECT_BALL_CHAOS,          37,  35, 65 },
         { EFFECT_BALL_WATER,          38,  37, 70 },
-        { EFFECT_BALL_MANA,           40,  42, 75 },
+        { EFFECT_BALL_MANA,           40,  45, 75 },
         { EFFECT_NONE } } },
 
     { "Offense: Breath", '3', TERM_RED,
@@ -815,20 +818,26 @@ static _group_t _groups[] = {
         { EFFECT_BREATHE_ACID,        27,  35, 55 },
         { EFFECT_BREATHE_FIRE,        28,  35, 55 },
         { EFFECT_BREATHE_POIS,        30,  35, 45 },
-        { EFFECT_BREATHE_LITE,        32,  35, 55 },
+        /*{ EFFECT_BREATHE_LITE,        32,  35, 55 },*/
         { EFFECT_BREATHE_DARK,        33,  35, 60 },
         { EFFECT_BREATHE_NETHER,      35,  35, 60 },
-        { EFFECT_BREATHE_NEXUS,       36,  40, 65 },
-        { EFFECT_BREATHE_CONF,        37,  40, 65 },
-        { EFFECT_BREATHE_DISEN,       38,  45, 65 },
-        { EFFECT_BREATHE_TIME,        39,  45, 65 },
+        /*{ EFFECT_BREATHE_NEXUS,       36,  40, 65 },*/
+        /*{ EFFECT_BREATHE_CONF,        37,  40, 65 },*/
+        /*{ EFFECT_BREATHE_DISEN,       38,  45, 65 },*/
+        /*{ EFFECT_BREATHE_TIME,        39,  45, 65 },*/
         { EFFECT_BREATHE_CHAOS,       40,  50, 70 },
         { EFFECT_BREATHE_SOUND,       41,  55, 70 },
         { EFFECT_BREATHE_SHARDS,      42,  55, 70 },
         { EFFECT_NONE } } },
 
     { "Offense: Other", '4', TERM_RED,
-      { { EFFECT_DISPEL_MONSTERS,     10,   5, 40 }, /* Faramir for only 4 damage */
+      { { EFFECT_PESTICIDE,            5,   2, 35 },
+        { EFFECT_DISPEL_MONSTERS,     10,   5, 40 }, /* Faramir for only 4 damage */
+        { EFFECT_BEAM_ELEC,           15,   7, 40 },
+        { EFFECT_BEAM_COLD,           17,   8, 45 },
+        { EFFECT_BEAM_FIRE,           22,   9, 45 },
+        { EFFECT_BEAM_ACID,           25,  10, 45 },
+        { EFFECT_BEAM_SOUND,          27,  15, 50 },
         { EFFECT_DRAIN_LIFE,          30,  20, 50 },
         { EFFECT_ARROW,               30,  20, 50 },
         { EFFECT_DISPEL_UNDEAD,       32,  30, 50 }, 
@@ -836,12 +845,14 @@ static _group_t _groups[] = {
         { EFFECT_DISPEL_GOOD,         33,  30, 55 }, 
         { EFFECT_DISPEL_EVIL,         35,  35, 60 }, 
         { EFFECT_DISPEL_LIFE,         35,  35, 60 }, 
-        { EFFECT_CONFUSING_LITE,      37,  40, 60 },
+        /*{ EFFECT_CONFUSING_LITE,      37,  40, 60 },*/
+        { EFFECT_HOLINESS,            40,  40, 60 },
         { EFFECT_DISPEL_EVIL_HERO,    40,  40, 60 },
-        { EFFECT_ROCKET,              42,  45, 65 },
+        { EFFECT_ROCKET,              42,  50, 65 },
         { EFFECT_WRATH_OF_GOD,        43,  50, 70 },
         { EFFECT_STAR_BALL,           44,  55, 75 },
-        { EFFECT_MANA_STORM,          45,  55, 75 },
+        { EFFECT_STARBURST,           45,  60, 75 },
+        { EFFECT_MANA_STORM,          45,  60, 75 },
         { EFFECT_NONE } } },
 
     { "Buff", 'B', TERM_YELLOW,
@@ -853,14 +864,13 @@ static _group_t _groups[] = {
         { EFFECT_RESIST_FIRE,         15,  10, 50 },
         { EFFECT_RESIST_COLD,         15,  10, 50 },
         { EFFECT_RESIST_POIS,         23,  15, 50 },
-        { EFFECT_BERSERK,             25,  10, 55 }, 
         { EFFECT_STONE_SKIN,          25,  15, 60 },
         { EFFECT_SPEED,               27,  20, 65 }, 
         { EFFECT_RESISTANCE,          30,  25, 65 },
         { EFFECT_PROT_EVIL,           32,  25, 65 },
         { EFFECT_SPEED_HERO,          35,  30, 65 },
         { EFFECT_HOLY_GRAIL,          37,  30, 65 },
-        { EFFECT_SPEED_HERO_BLESS,    40,  35, 70 },
+        /*{ EFFECT_SPEED_HERO_BLESS,    40,  35, 70 },*/
         { EFFECT_WRAITHFORM,          47,  90, 90 },
         { EFFECT_INVULNERABILITY,     49, 100, 90 },
         { EFFECT_LIGHT_SPEED,         50, 100, 90 },
@@ -886,16 +896,19 @@ static _group_t _groups[] = {
     { "Detection/Knowledge", 'D', TERM_L_BLUE,
       { { EFFECT_LITE_AREA,            1,   2, 25 },
         { EFFECT_DETECT_TRAPS,         3,   4, 30 },
-        { EFFECT_DETECT_MONSTERS,      5,   5, 35 },
+        { EFFECT_DETECT_GOLD,          4,   4, 30 },
+        { EFFECT_DETECT_EVIL,          5,   5, 35 },
+        { EFFECT_DETECT_MONSTERS,      7,   5, 35 },
         { EFFECT_DETECT_OBJECTS,       8,   7, 40 },
         { EFFECT_IDENTIFY,            15,  12, 55 },
-        { EFFECT_LITE_MAP_AREA,       20,  10, 50 },
+        /*{ EFFECT_LITE_MAP_AREA,       20,  10, 50 },*/
         { EFFECT_ENLIGHTENMENT,       20,  10, 50 },
         { EFFECT_DETECT_ALL,          25,  15, 60 },
         { EFFECT_PROBING,             27,  20, 60 },
+        { EFFECT_SELF_KNOWLEDGE,      30,  23, 65 },
         { EFFECT_IDENTIFY_FULL,       33,  25, 65 },
-        { EFFECT_LIST_UNIQUES,        40,  50, 75 },
-        { EFFECT_LIST_ARTIFACTS,      42,  50, 75 }, 
+        /*{ EFFECT_LIST_UNIQUES,        40,  50, 75 },*/
+        /*{ EFFECT_LIST_ARTIFACTS,      42,  50, 75 },*/
         { EFFECT_CLAIRVOYANCE,        45,  50, 70 },
         { EFFECT_NONE } } },
 
@@ -913,15 +926,17 @@ static _group_t _groups[] = {
         { EFFECT_NONE } } },
 
     { "Utility", 'U', TERM_L_BLUE, 
-      { { EFFECT_SATISFY_HUNGER,       5,   5, 35 },
+      { /*{ EFFECT_SATISFY_HUNGER,       5,   5, 35 },*/
         { EFFECT_STONE_TO_MUD,        15,  10, 50 },
-        { EFFECT_DESTROY_TRAP,        20,  12, 50 },
+        /*{ EFFECT_DESTROY_TRAP,        20,  12, 50 },*/
         { EFFECT_DESTROY_TRAPS,       25,  15, 55 },
         { EFFECT_EARTHQUAKE,          25,  20, 60 },
         { EFFECT_RUNE_EXPLOSIVE,      29,  25, 65 },
-        { EFFECT_ENCHANTMENT,         30,  80, 85 },
+        /*{ EFFECT_ENCHANTMENT,         30,  80, 85 },*/
+        { EFFECT_GENOCIDE_ONE,        33,  30, 65 },
         { EFFECT_RECHARGE_FROM_DEVICE,35,  30, 65 },
         { EFFECT_RUNE_PROTECTION,     37,  50, 70 },
+        { EFFECT_RECHARGE_FROM_PLAYER,38,  30, 70 },
         { EFFECT_DESTRUCTION,         40,  35, 70 },
         { EFFECT_ALCHEMY,             43,  90, 70 },
         { EFFECT_GENOCIDE,            45,  55, 75 },
@@ -932,7 +947,7 @@ static _group_t _groups[] = {
       { { EFFECT_SUMMON_ANTS,         20,  15, 45 },        
         { EFFECT_SUMMON_ELEMENTAL,    23,  20, 45 },
         { EFFECT_SUMMON_PHANTASMAL,   25,  25, 45 },
-        { EFFECT_CHARM_ANIMAL,        27,  25, 45 },
+        /*{ EFFECT_CHARM_ANIMAL,        27,  25, 45 },*/
         { EFFECT_SUMMON_MONSTERS,     30,  30, 50 },
         { EFFECT_CHARM_DEMON,         31,  30, 50 },
         { EFFECT_CHARM_UNDEAD,        32,  30, 50 },
@@ -943,16 +958,17 @@ static _group_t _groups[] = {
         { EFFECT_SUMMON_UNDEAD,       39,  50, 55 },
         { EFFECT_SUMMON_DEMON,        40,  55, 55 },
         { EFFECT_SUMMON_ANGEL,        45,  80, 65 },
-        { EFFECT_SUMMON_CYBERDEMON,   50, 100, 75 },
+        /*{ EFFECT_SUMMON_CYBERDEMON,   50, 100, 75 },*/
         { EFFECT_NONE } } },
 
     { "Other", 'O', TERM_UMBER,
       { { EFFECT_AGGRAVATE,           10,   3, 35 },
-        { EFFECT_POLY_SELF,           20,  10, 40 },
+        /*{ EFFECT_POLY_SELF,           20,  10, 40 },*/
         { EFFECT_SCARE_MONSTERS,      22,  15, 45 },
+        { EFFECT_CHARM_MONSTER,       23,  17, 45 },
         { EFFECT_SLEEP_MONSTERS,      25,  20, 45 },
-        { EFFECT_SLOW_MONSTERS,       25,  20, 45 },
-        { EFFECT_CONFUSE_MONSTERS,    27,  25, 50 },
+        /*{ EFFECT_SLOW_MONSTERS,       25,  20, 45 },*/
+        /*{ EFFECT_CONFUSE_MONSTERS,    27,  25, 50 },*/
         { EFFECT_ANIMATE_DEAD,        30,  30, 50 },
         { EFFECT_STASIS_MONSTERS,     40,  50, 70 },
         { EFFECT_NONE } } },
@@ -972,6 +988,43 @@ static int _boost(int effect)
     }
     result += spell_power(100) - 100;
     return result;
+}
+
+int _prorata_level_aux(int amt, int lvl, int w1, int w2, int w3)
+{
+    int result = 0;
+    int wt = w1 + w2 + w3;
+
+    /* assume out of 50 max lvl */
+    if (lvl == 50)
+        return amt; /* make sure the player gets the entire amt */
+
+    result += amt * lvl * w1 / (50*wt);
+    result += amt * lvl * lvl * w2 / (50*50*wt);
+    result += (amt * lvl * lvl / 50) * lvl * w3 / (50*50*wt); /* 2^31/50^3 is about 17000 */
+
+    return result;
+}
+
+
+static int _power(_spell_ptr spell)
+{
+    /* cf py_prorata_level.ods ... py_prorata_level_aux() assumes the player's level.
+     * Historically, absorbed ring powers have always used the spell's level, but this
+     * is unsatisfactory for high end spells (and depends on implementation in devices.c;
+     * for example, Rockets are fine with Power 42 but Starburst is lame with power 45). */
+    return spell->level + _prorata_level_aux(30, spell->level, 0, 0, 1);
+}
+
+static effect_t _effect(_spell_ptr spell)
+{
+    effect_t effect = {0};
+
+    effect.type = spell->effect;
+    effect.power = _power(spell);
+    effect.difficulty = spell->level;
+
+    return effect;
 }
 
 static int _groups_count(void)
@@ -1007,6 +1060,38 @@ static int _spells_count_allowed(_spell_ptr spells)
             result++;
     }
     return result;
+}
+
+/* The following will help me locate effects missing
+ * from the spell tables above. This happens when I
+ * add new allowable activations to jewelry. */
+static _spell_ptr _find_spell(int effect)
+{
+    int i, j;
+    for (i = 0; ; i++)
+    {
+        _group_ptr g = &_groups[i];
+        if (!g->name) break;
+        for (j = 0; ; j++)
+        {
+            _spell_ptr s = &g->spells[j];
+            if (s->effect == EFFECT_NONE) break;
+            if (s->effect == effect) return s;
+        }
+    }
+    return NULL;
+}
+static vec_ptr _missing_effects(void)
+{
+    vec_ptr v = vec_alloc(NULL);
+    int     i;
+
+    for (i = 0; i < EFFECT_MAX; i++)
+    {
+        if (_effects[i] > 0 && !_find_spell(i))
+            vec_add_int(v, i);
+    }
+    return v;
 }
 
 /* Menu Code 1: Choose which group of magic to use */
@@ -1058,12 +1143,9 @@ static void _spell_menu_fn(int cmd, int which, vptr cookie, variant *res)
         char     buf[1024];
         char     name[255];
         char     info[255];
-        effect_t effect = {0};
+        effect_t effect = _effect(s);
 
-        effect.type = s->effect;
-        effect.power = s->level;
-        effect.difficulty = s->level;
-
+        if (s->effect == EFFECT_NONE) break;
         sprintf(name, "%s", do_effect(&effect, SPELL_NAME, 0));
         sprintf(info, "%s", do_effect(&effect, SPELL_INFO, _boost(s->effect)));
 
@@ -1074,11 +1156,8 @@ static void _spell_menu_fn(int cmd, int which, vptr cookie, variant *res)
     }
     case MENU_HELP:
     {
-        effect_t effect;
-
-        effect.type = s->effect;
-        effect.power = s->level;
-        effect.difficulty = s->level;
+        effect_t effect = _effect(s);
+        if (s->effect == EFFECT_NONE) break;
         var_set_string(res, do_effect(&effect, SPELL_DESC, 0));
         break;
     }
@@ -1086,6 +1165,8 @@ static void _spell_menu_fn(int cmd, int which, vptr cookie, variant *res)
         if (s->level > p_ptr->lev)
             var_set_int(res, TERM_L_DARK);
         else if (s->cost > p_ptr->csp)
+            var_set_int(res, TERM_L_DARK);
+        else if(s->effect == EFFECT_NONE)
             var_set_int(res, TERM_L_DARK);
         else
             var_set_int(res, TERM_WHITE);
@@ -1105,17 +1186,23 @@ static _spell_t _prompt_spell(_spell_ptr spells)
     for (i = 0; i < ct_total; i++)
     {
         _spell_ptr spell = &spells[i];
-        
+        _spell_ptr choice = &choices[i];
+
         if (_effects[spell->effect])
         {
-            _spell_ptr choice = &choices[ct_avail];
-            
             choice->effect = spell->effect;
             choice->level = spell->level;
             choice->cost = _calculate_cost(spell->effect, spell->cost);
             choice->fail = calculate_fail_rate(spell->level, spell->fail, p_ptr->stat_ind[A_INT]);
 
             ct_avail++;
+        }
+        else
+        {
+            choice->effect = EFFECT_NONE;
+            choice->level = 0;
+            choice->cost = 0;
+            choice->fail = 0;                
         }
     }
 
@@ -1128,7 +1215,7 @@ static _spell_t _prompt_spell(_spell_ptr spells)
         int    idx = -1;
         char   heading[255], prompt1[255], prompt2[255];
         menu_t menu = { prompt1, prompt2, heading,
-                        _spell_menu_fn, choices, ct_avail};
+                        _spell_menu_fn, choices, ct_total};
 
         sprintf(prompt1, "Use which type of %s?", _group_choice);
         sprintf(prompt2, "Browse which type of %s?", _group_choice);
@@ -1193,10 +1280,7 @@ void ring_cast(void)
     }
     else
     {
-        effect_t effect = {0};
-        effect.type = spell.effect;
-        effect.power = spell.level;
-        effect.difficulty = spell.level;
+        effect_t effect = _effect(&spell);
         device_known = TRUE; /* Hack */
         if (!do_effect(&effect, SPELL_CAST, _boost(spell.effect)))
         {
@@ -1222,7 +1306,7 @@ static void _browse(void)
     {
         group = _prompt_group();
         if (!group) break;
-        ct = _spells_count_allowed(group->spells);
+        ct = _spells_count(group->spells);
         screen_save();
         for (;;)
         {
@@ -1231,9 +1315,7 @@ static void _browse(void)
             for (i = 0; i < 7; i++)
                 Term_erase(13, ct + i + 2, 255);
 
-            effect.type = spell.effect;
-            effect.power = spell.level;
-            effect.difficulty = spell.level;
+            effect = _effect(&spell);
             sprintf(desc, "%s", do_effect(&effect, SPELL_DESC, 0));
             roff_to_buf(desc, 62, tmp, sizeof(tmp));
 
@@ -1421,15 +1503,38 @@ static void _get_flags(u32b flgs[OF_ARRAY_SIZE])
         add_flag(flgs, OF_SEARCH);
     if (_calc_amount(_essences[OF_INFRA], 2, 1))
         add_flag(flgs, OF_INFRA);
+    if (_calc_amount(_essences[OF_SPELL_POWER], 2, 1))
+        add_flag(flgs, OF_SPELL_POWER);
+    if (_calc_amount(_essences[OF_SPELL_CAP], 2, 1))
+        add_flag(flgs, OF_SPELL_CAP);
 
     if (_essences[OF_TELEPATHY] >= 2)
         add_flag(flgs, OF_TELEPATHY);
 
-    for (i = OF_ESP_ANIMAL; i <= OF_ESP_UNIQUE; i++)
-    {
-        if (_essences[i] >= 2)
-            add_flag(flgs, i);
-    }
+    if (_essences[OF_ESP_EVIL] >= 2)
+        add_flag(flgs, OF_ESP_EVIL);
+    if (_essences[OF_ESP_GOOD] >= 2)
+        add_flag(flgs, OF_ESP_GOOD);
+    if (_essences[OF_ESP_NONLIVING] >= 2)
+        add_flag(flgs, OF_ESP_NONLIVING);
+    if (_essences[OF_ESP_UNIQUE] >= 2)
+        add_flag(flgs, OF_ESP_UNIQUE);
+    if (_essences[OF_ESP_DRAGON] >= 2)
+        add_flag(flgs, OF_ESP_DRAGON);
+    if (_essences[OF_ESP_DEMON] >= 2)
+        add_flag(flgs, OF_ESP_DEMON);
+    if (_essences[OF_ESP_UNDEAD] >= 2)
+        add_flag(flgs, OF_ESP_UNDEAD);
+    if (_essences[OF_ESP_ANIMAL] >= 2)
+        add_flag(flgs, OF_ESP_ANIMAL);
+    if (_essences[OF_ESP_HUMAN] >= 2)
+        add_flag(flgs, OF_ESP_HUMAN);
+    if (_essences[OF_ESP_ORC] >= 2)
+        add_flag(flgs, OF_ESP_ORC);
+    if (_essences[OF_ESP_TROLL] >= 2)
+        add_flag(flgs, OF_ESP_TROLL);
+    if (_essences[OF_ESP_GIANT] >= 2)
+        add_flag(flgs, OF_ESP_GIANT);
 
     if (_essences[OF_LEVITATION] >= 2)
         add_flag(flgs, OF_LEVITATION);
@@ -1491,6 +1596,23 @@ static void _dump_bonus_flag(doc_ptr doc, int which, int power, int rep, cptr na
     }
 }
 
+static void _dump_missing_effects(doc_ptr doc)
+{
+    vec_ptr v = _missing_effects();
+
+    if (vec_length(v))
+    {
+        int i;
+        doc_insert(doc, "\n   <color:r>Missing Effects</color>\n");
+        for (i = 0; i < vec_length(v); i++)
+        {
+            effect_t effect = {0};
+            effect.type = vec_get_int(v, i);
+            doc_printf(doc, "   %s\n", do_effect(&effect, SPELL_NAME, 0));
+        }
+    }
+    vec_free(v);
+}
 static void _dump_effects(doc_ptr doc)
 {
     int i, j;
@@ -1503,24 +1625,20 @@ static void _dump_effects(doc_ptr doc)
         {
             _spell_ptr s = g->spells + j;
             if (s->effect == EFFECT_NONE) break;
-            if (_effects[s->effect])
+            if (_effects[s->effect] || p_ptr->wizard)
             {
                 char     buf[1024];
                 char     name[255];
                 char     info[255];
-                effect_t effect = {0};
-
-                effect.type = s->effect;
-                effect.power = s->level;
-                effect.difficulty = s->level;
+                effect_t effect = _effect(s);
 
                 sprintf(name, "%s", do_effect(&effect, SPELL_NAME, 0));
                 sprintf(info, "%s", do_effect(&effect, SPELL_INFO, _boost(s->effect)));
 
-                sprintf(buf, "%-30.30s %3d %3d %3d %3d%% ", 
+                sprintf(buf, "<color:%c>%-30.30s %3d %3d %3d %3d%% %s</color>",
+                              _effects[s->effect] ? 'w' : 'D',
                               name, _effects[s->effect], s->level, _calculate_cost(s->effect, s->cost), 
-                              calculate_fail_rate(s->level, s->fail, p_ptr->stat_ind[A_INT]));
-                strcat(buf, info);
+                              calculate_fail_rate(s->level, s->fail, p_ptr->stat_ind[A_INT]), info);
 
                 if (!ct)
                 {
@@ -1531,6 +1649,8 @@ static void _dump_effects(doc_ptr doc)
             }
         }
     }
+    if (p_ptr->wizard)
+        _dump_missing_effects(doc);
 }
 
 static void _character_dump(doc_ptr doc)
@@ -1718,7 +1838,7 @@ static bool _mon_save_p(monster_type *m_ptr)
     int           ml = _r_level(r_ptr);
     bool          result = FALSE;
 
-    if (r_ptr->flags1 & RF1_QUESTOR)
+    if (m_ptr->mflag2 & MFLAG2_QUESTOR)
         return TRUE;
     
     /* Player may not exert their force of will out of sight! */

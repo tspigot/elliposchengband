@@ -149,33 +149,6 @@ static void player_wipe(void)
     (void)WIPE(p_ptr, player_type);
     p_ptr->mimic_form = MIMIC_NONE;
 
-    /* Wipe the quests */
-    for (i = 0; i < max_quests; i++)
-    {
-        quest[i].status = QUEST_STATUS_UNTAKEN;
-
-        quest[i].cur_num = 0;
-        quest[i].max_num = 0;
-        quest[i].type = 0;
-        quest[i].level = 0;
-        quest[i].r_idx = 0;
-        quest[i].complev = 0;
-        quest[i].seed = 0;
-    }
-
-    /* No weight */
-    p_ptr->total_weight = 0;
-
-    /* No items */
-    inven_cnt = 0;
-
-    /* Clear the inventory */
-    for (i = 0; i < INVEN_TOTAL; i++)
-    {
-        object_wipe(&inventory[i]);
-    }
-
-
     /* Start with no artifacts made yet */
     for (i = 0; i < max_a_idx; i++)
     {
@@ -199,6 +172,7 @@ static void player_wipe(void)
 
         /* Hack -- Reset the max counter */
         r_ptr->max_num = 100;
+        r_ptr->flagsx = 0;
 
         /* Hack -- Reset the max counter */
         if (r_ptr->flags1 & RF1_UNIQUE) r_ptr->max_num = 1;
@@ -216,10 +190,10 @@ static void player_wipe(void)
         r_ptr->stolen_ct = 0;
 
         /* Wipe out pact alliances from previous character
-           Currently, flagsr is only set to make the memory field
-           work, but perhaps it would be better to set this once
-           and for all when a pact is made?  This would break
-           my savefiles though ...*/
+        Currently, flagsr is only set to make the memory field
+        work, but perhaps it would be better to set this once
+        and for all when a pact is made?  This would break
+        my savefiles though ...*/
         r_ptr->flagsr &= ~(RFR_PACT_MONSTER);
         r_ptr->r_flagsr &= ~(RFR_PACT_MONSTER);
     }
@@ -279,14 +253,10 @@ static void player_wipe(void)
     /* Wipe the recall depths */
     for (i = 0; i < max_d_idx; i++)
     {
-        if (d_info[i].flags1 & DF1_RANDOM || d_info[i].flags1 & DF1_WINNER)
-            max_dlv[i] = 0;
-        else
-            max_dlv[i] = d_info[i].mindepth;
+        max_dlv[i] = 0;
         dungeon_flags[i] = 0;
     }
 
-    p_ptr->visit = 1;
     p_ptr->wild_mode = FALSE;
 
     for (i = 0; i < MAX_MAGIC_NUM; i++)
@@ -301,7 +271,6 @@ static void player_wipe(void)
     /* Initialize arena and rewards information -KMW- */
     p_ptr->arena_number = 0;
     p_ptr->inside_arena = FALSE;
-    p_ptr->inside_quest = 0;
     for (i = 0; i < MAX_MANE; i++)
     {
         p_ptr->mane_spell[i] = -1;
@@ -344,195 +313,6 @@ static void player_wipe(void)
         dungeon_type = 0;
         p_ptr->recall_dungeon = DUNGEON_STRONGHOLD;
     }
-}
-
-
-/*
- *  Hook function for quest monsters
- */
-static bool mon_hook_quest(int r_idx)
-{
-    monster_race *r_ptr = &r_info[r_idx];
-
-    /* Random quests are in the dungeon */
-    if (r_ptr->flags8 & RF8_WILD_ONLY) return FALSE;
-
-    /* No random quests for aquatic monsters */
-    if (r_ptr->flags7 & RF7_AQUATIC) return FALSE;
-
-    /* No random quests for multiplying monsters */
-    if (r_ptr->flags2 & RF2_MULTIPLY) return FALSE;
-
-    /* No quests to kill friendly monsters */
-    if (r_ptr->flags7 & RF7_FRIENDLY) return FALSE;
-
-    return TRUE;
-}
-
-static bool mon_hook_quest_unique(int r_idx)
-{
-    monster_race *r_ptr = &r_info[r_idx];
-
-    if (!(r_ptr->flags1 & RF1_UNIQUE)) return FALSE;
-
-    return TRUE;
-}
-
-static bool mon_hook_quest_nonunique(int r_idx)
-{
-    monster_race *r_ptr = &r_info[r_idx];
-
-    if (r_ptr->flags1 & RF1_UNIQUE) return FALSE;
-    if (r_ptr->flags7 & RF7_UNIQUE2) return FALSE;
-    if (r_ptr->flags7 & RF7_NAZGUL) return FALSE;
-
-    return TRUE;
-}
-
-
-/*
- * Determine the random quest uniques
- */
-void determine_random_questor(quest_type *q_ptr)
-{
-    int          r_idx = 0;
-    monster_race *r_ptr;
-    int             attempt = 0;
-    bool         force_unique = FALSE;
-    bool         prevent_unique = FALSE;
-
-    /* High Level quests are stacked with uniques. Everything else
-       is stacked the other way. So lets make some attempt at balance.
-       Of course, users can force all quests to be for uniques, in
-       true Hengband spirit. */
-    if (quest_unique || one_in_(3))
-    {
-        get_mon_num_prep(mon_hook_quest, mon_hook_quest_unique);
-        force_unique = TRUE;
-    }
-    else if (one_in_(2))
-    {
-        get_mon_num_prep(mon_hook_quest, mon_hook_quest_nonunique);
-        prevent_unique = TRUE;
-    }
-    else
-        get_mon_num_prep(mon_hook_quest, NULL);
-
-    while (attempt < 10000)
-    {
-        int min_lev = q_ptr->level + 1;
-        int max_lev = q_ptr->level + 9;
-        if (q_ptr->level < 10)
-            max_lev -= 2;
-        else if (q_ptr->level < 20)
-            max_lev -= 1;
-        else if (q_ptr->level > 80)
-            max_lev += 2;
-        else if (q_ptr->level > 70)
-            max_lev += 1;
-        int mon_lev = (min_lev + max_lev + 1) / 2;
-        mon_lev += randint0(max_lev - mon_lev + 1);
-
-        attempt++;
-
-        unique_count = 0; /* Hack! */
-        r_idx = get_mon_num(mon_lev);
-        r_ptr = &r_info[r_idx];
-
-        // Don't allow these uniques (mainly for being too nasty for the depth
-        // at which they would be placed.
-        if (r_idx == MON_ROBIN_HOOD) continue;         //6
-        if (r_idx == MON_GACHAPIN) continue;           //21
-        if (r_ptr->flags2 & RF2_CAMELOT) continue;     //21 or 30
-        if (r_idx == MON_SHEER_HEART_ATTACK) continue; //30
-        if (r_idx == MON_KAVLAX) continue;             //30
-        if (r_idx == MON_JACK_SHADOWS) continue;       //39
-        if (r_idx == MON_YIBB_TSTLL) continue;         //39
-        if (r_idx == MON_THE_METAL_BABBLE) continue;   //76
-
-        /* Try to enforce preferences, but its virtually impossible to prevent
-           high level quests for uniques */
-        if (attempt < 5000)
-        {
-            if (prevent_unique && (r_ptr->flags1 & RF1_UNIQUE)) continue;
-            if (force_unique && !(r_ptr->flags1 & RF1_UNIQUE)) continue;
-        }
-
-        if (r_ptr->flags1 & RF1_QUESTOR) continue;
-
-        if (r_ptr->rarity > 100) continue;
-
-        if (r_ptr->flags7 & RF7_FRIENDLY) continue;
-
-        if (r_ptr->flags7 & RF7_AQUATIC) continue;
-
-        if (r_ptr->flags8 & RF8_WILD_ONLY) continue;
-
-        if (no_questor_or_bounty_uniques(r_idx)) continue;
-
-        if (r_ptr->level > max_lev) continue;
-
-        if (r_ptr->level >= min_lev || attempt > 5000) break;
-    }
-
-    q_ptr->r_idx = r_idx;
-    //msg_format("%d->%d: %s\n", q_ptr->level, r_info[r_idx].level, r_name + r_info[r_idx].name);
-}
-
-
-/*
- *  Initialize random quests and final quests
- */
-static void init_dungeon_quests(void)
-{
-    int i;
-
-    num_random_quests = 10; /*get_quantity("How many quests (0 to 49)? ", 49);*/
-
-    /* Init the random quests */
-    init_flags = INIT_ASSIGN;
-    p_ptr->inside_quest = MIN_RANDOM_QUEST;
-
-    process_dungeon_file("q_info.txt", 0, 0, 0, 0);
-
-    p_ptr->inside_quest = 0;
-
-    /* Generate quests */
-    for (i = MIN_RANDOM_QUEST + num_random_quests - 1; i >= MIN_RANDOM_QUEST; i--)
-    {
-        quest_type      *q_ptr = &quest[i];
-        monster_race    *quest_r_ptr;
-
-        q_ptr->status = QUEST_STATUS_TAKEN;
-        determine_random_questor(q_ptr);
-
-        /* Mark uniques */
-        quest_r_ptr = &r_info[q_ptr->r_idx];
-        if (quest_r_ptr->flags1 & RF1_UNIQUE)
-        {
-            quest_r_ptr->flags1 |= RF1_QUESTOR;
-            q_ptr->max_num = 1;
-        }
-        else
-        {
-            q_ptr->max_num = randint1(20) + 5;
-        }
-    }
-
-    /* Init the two main quests (Oberon + Serpent) */
-    init_flags = INIT_ASSIGN;
-    p_ptr->inside_quest = QUEST_OBERON;
-
-    process_dungeon_file("q_info.txt", 0, 0, 0, 0);
-
-    quest[QUEST_OBERON].status = QUEST_STATUS_TAKEN;
-
-    p_ptr->inside_quest = QUEST_SERPENT;
-
-    process_dungeon_file("q_info.txt", 0, 0, 0, 0);
-
-    quest[QUEST_SERPENT].status = QUEST_STATUS_TAKEN;
-    p_ptr->inside_quest = 0;
 }
 
 /*
@@ -588,8 +368,6 @@ cptr birth_get_realm_desc(int i)
 bool birth_hack = FALSE;
 void player_birth(void)
 {
-    int i, j;
-
     birth_hack = TRUE;
     playtime = 0;
 
@@ -601,15 +379,7 @@ void player_birth(void)
         quit(NULL);
 
     /* Here's a bunch of crap that py_birth() shouldn't need to know */
-    init_dungeon_quests();
     init_turn();
-
-    /* Init the shops */
-    for (i = 1; i < max_towns; i++)
-    {
-        for (j = 0; j < MAX_STORES; j++)
-            store_init(i, j);
-    }
 
     /* Generate the random seeds for the wilderness */
     seed_wilderness();
